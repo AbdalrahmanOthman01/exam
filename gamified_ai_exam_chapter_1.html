@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي أبطال الذكاء الاصطناعي - الفصل الأول</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+            --dark-card: #1e1b4b;
+            --bg: #0b0f19;
+            --surface: #131b2e;
+            --surface-hover: #1e293b;
+            --border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --accent: #38bdf8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+            padding-bottom: 40px;
+        }
+
+        /* Animated glowing background */
+        .glow-sphere {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: 0;
+            opacity: 0.25;
+            pointer-events: none;
+            animation: pulse 8s infinite alternate ease-in-out;
+        }
+        .sphere-1 {
+            width: 380px;
+            height: 380px;
+            background: #6366f1;
+            top: -80px;
+            right: -80px;
+        }
+        .sphere-2 {
+            width: 320px;
+            height: 320px;
+            background: #ec4899;
+            bottom: 40px;
+            left: -80px;
+            animation-delay: 4s;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.15) translate(25px, 25px); }
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 860px;
+            padding: 24px 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Top HUD Gaming Bar */
+        .hud-bar {
+            background: rgba(19, 27, 46, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 14px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .hud-stat {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-icon {
+            font-size: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.08);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .stat-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-title {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 17px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .streak-fire {
+            color: #fb923c;
+            animation: flame 1.2s infinite alternate;
+        }
+
+        @keyframes flame {
+            0% { transform: scale(1); filter: drop-shadow(0 0 2px #f97316); }
+            100% { transform: scale(1.15); filter: drop-shadow(0 0 10px #ea580c); }
+        }
+
+        /* Progress XP Bar */
+        .xp-bar-container {
+            width: 100%;
+            height: 10px;
+            background: #1e293b;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+        }
+
+        .xp-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--primary-gradient);
+            border-radius: 20px;
+            transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 14px rgba(124, 58, 237, 0.6);
+        }
+
+        /* Main Game Arena Box */
+        .arena-card {
+            background: rgba(19, 27, 46, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 26px;
+            padding: 35px 30px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        /* Welcome Screen */
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 20%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .hero-desc {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .name-input-box {
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid #334155;
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-size: 16px;
+            color: #fff;
+            width: 100%;
+            text-align: center;
+            outline: none;
+            margin-bottom: 25px;
+            transition: all 0.3s;
+        }
+
+        .name-input-box:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-launch {
+            background: var(--primary-gradient);
+            color: #fff;
+            border: none;
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 800;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.4);
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn-launch:hover {
+            transform: scale(1.02);
+            box-shadow: 0 12px 30px rgba(124, 58, 237, 0.55);
+        }
+
+        .btn-launch:active {
+            transform: scale(0.98);
+        }
+
+        /* Question Elements */
+        .q-header-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #818cf8;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .question-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 25px;
+        }
+
+        .opt-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 16px 20px;
+            text-align: right;
+            color: #e2e8f0;
+            font-size: 15.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .opt-btn:hover:not(:disabled) {
+            background: var(--surface-hover);
+            border-color: #64748b;
+            transform: translateX(-4px);
+        }
+
+        .opt-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            flex-shrink: 0;
+            color: var(--accent);
+        }
+
+        .opt-btn.correct {
+            background: rgba(16, 185, 129, 0.2) !important;
+            border-color: #10b981 !important;
+            color: #34d399 !important;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+        }
+        .opt-btn.correct .opt-badge {
+            background: #10b981;
+            color: white;
+        }
+
+        .opt-btn.wrong {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-color: #ef4444 !important;
+            color: #f87171 !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+            animation: shake 0.4s ease;
+        }
+        .opt-btn.wrong .opt-badge {
+            background: #ef4444;
+            color: white;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        /* Live Feedback Box below options */
+        .live-feedback {
+            display: none;
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            font-size: 14.5px;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+        }
+        .live-feedback.success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #a7f3d0;
+        }
+        .live-feedback.error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fecaca;
+        }
+
+        .nav-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-next {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 13px 34px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(124, 58, 237, 0.35);
+            display: none;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn-next:hover {
+            transform: scale(1.03);
+        }
+
+        /* Result Screen Showcase */
+        .result-screen {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .badge-trophy {
+            font-size: 70px;
+            margin-bottom: 15px;
+            display: inline-block;
+            animation: bounce 1.5s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .rank-title {
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, rgba(19, 27, 46, 0.8) 100%);
+            border: 3px solid #818cf8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            box-shadow: 0 0 35px rgba(99, 102, 241, 0.4);
+        }
+
+        .score-num {
+            font-size: 38px;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1;
+        }
+        .score-total {
+            font-size: 14px;
+            color: var(--accent);
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .result-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 25px 0;
+        }
+
+        .res-box {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 15px;
+        }
+        .res-box-val {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        .res-box-lbl {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .btn-restart {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 14px 30px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 15px;
+        }
+        .btn-restart:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        @media (max-width: 600px) {
+            .arena-card { padding: 24px 18px; }
+            .question-title { font-size: 17px; }
+            .hero-title { font-size: 24px; }
+            .result-stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="glow-sphere sphere-1"></div>
+<div class="glow-sphere sphere-2"></div>
+
+<div class="app-container">
+    <!-- Top HUD Gaming Status -->
+    <div class="hud-bar">
+        <div class="hud-stat">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-details">
+                <span class="stat-title">النقاط (XP)</span>
+                <span class="stat-value" id="hudScore">0 XP</span>
+            </div>
+        </div>
+        <div class="hud-stat">
+            <div class="stat-icon streak-fire">🔥</div>
+            <div class="stat-details">
+                <span class="stat-title">الحماس المتتالي</span>
+                <span class="stat-value" id="hudStreak">0</span>
+            </div>
+        </div>
+        <div class="hud-stat">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-details">
+                <span class="stat-title">المرحلة</span>
+                <span class="stat-value" id="hudProgress">1 / 50</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- XP Progress Bar -->
+    <div class="xp-bar-container">
+        <div class="xp-bar-fill" id="xpBar"></div>
+    </div>
+
+    <!-- Main Dynamic Card -->
+    <div class="arena-card">
+        
+        <!-- Screen 1: Start Screen -->
+        <div class="screen active" id="startScreen">
+            <div style="text-align: center; font-size: 55px; margin-bottom: 10px;">🚀</div>
+            <h1 class="hero-title">بطولة الذكاء الاصطناعي والمجتمع</h1>
+            <p class="hero-desc">
+                تحدي تفاعلي شيق مكون من <strong>50 سؤالاً</strong> يغطي كامل الفصل الأول لمقرر البرمجة والذكاء الاصطناعي.<br>
+                كل إجابة صحيحة تمنحك <strong>+100 XP</strong> وترفع من سلسلة حماسك (Streak)!
+            </p>
+            <div style="max-width: 420px; margin: 0 auto;">
+                <input type="text" id="playerNameInput" class="name-input-box" placeholder="اكتب اسم البطل / الطالب..." autocomplete="off">
+                <button type="button" class="btn-launch" onclick="startGame()">
+                    <span>ابدأ المغامرة الآن</span>
+                    <span>←</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 2: Game Screen -->
+        <div class="screen" id="gameScreen">
+            <div class="q-header-tag" id="qLessonTag">
+                <span>📚</span>
+                <span id="lessonNameText">الدرس الأول</span>
+            </div>
+            <div class="question-title" id="qTitleText">جاري تحميل السؤال...</div>
+            
+            <div class="options-grid" id="optionsBox">
+                <!-- الخيارات تتولد هنا -->
+            </div>
+
+            <div class="live-feedback" id="feedbackBox"></div>
+
+            <div class="nav-actions">
+                <button type="button" class="btn-next" id="nextBtn" onclick="nextQuestion()">
+                    <span>السؤال التالي</span>
+                    <span>←</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 3: Results Showcase Screen -->
+        <div class="screen" id="resultScreen">
+            <div class="result-screen">
+                <div class="badge-trophy" id="trophyIcon">🏆</div>
+                <h2 class="rank-title" id="playerRankTitle">أسطورة الذكاء الاصطناعي!</h2>
+                <p style="color: var(--text-muted); font-size: 15px;" id="playerFinalName"></p>
+
+                <div class="score-circle">
+                    <div class="score-num" id="finalCorrectCount">0</div>
+                    <div class="score-total">من 50 سؤالاً</div>
+                </div>
+
+                <div class="result-stats-grid">
+                    <div class="res-box">
+                        <div class="res-box-val" style="color: #a78bfa;" id="finalXpVal">0</div>
+                        <div class="res-box-lbl">إجمالي الـ XP المكتسب</div>
+                    </div>
+                    <div class="res-box">
+                        <div class="res-box-val" style="color: #34d399;" id="finalAccuracy">0%</div>
+                        <div class="res-box-lbl">نسبة الدقة والنجاح</div>
+                    </div>
+                    <div class="res-box">
+                        <div class="res-box-val" style="color: #fb923c;" id="finalStreakVal">0</div>
+                        <div class="res-box-lbl">أعلى سلسلة حماس 🔥</div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-restart" onclick="restartGame()">🔄 إعادة خوض التحدي</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// بنك الـ 50 سؤالاً الشامل للفصل الأول بالكامل
+const quizData = [
+    // الدرس 1: تطور تكنولوجيا المعلومات والتحول الاجتماعي
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "ما هو المفهوم الأساسي الذي ينص عليه قانون مور؟",
+        options: ["تضاعف سرعة نقل بيانات الإنترنت سنوياً", "تضاعف عدد الترانزستورات داخل الشريحة الإلكترونية كل عامين تقريباً", "تناقص حجم الشاشات بمعدل النصف كل عامين", "تضاعف استهلاك الطاقة في المعالجات"],
+        correct: 1,
+        exp: "ينص قانون مور على أن عدد الترانزستورات في الدوائر المتكاملة يتضاعف كل عامين تقريباً."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "يُعتبر قانون مور في طبيعته العلمية:",
+        options: ["قانوناً فيزيائياً حتمياً كقوانين الجاذبية والحركة", "معادلة كيميائية تتحكم في سيليكون أشباه الموصلات", "ملاحظة وتوجهاً تاريخياً وتجريبياً في صناعة الإلكترونيات", "قانوناً اقتصادياً ثابتاً يحدد أسعار الحواسيب"],
+        correct: 2,
+        exp: "قانون مور ليس قانوناً فيزيائياً ثابتاً، بل ملاحظة واتجاه تاريخي لصناعة أشباه الموصلات."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "ما الحواسيب الأولى التي ظهرت في الأربعينيات وكانت تملأ غرفة بأكملها وتعتمد على الصمامات المفرغة؟",
+        options: ["الحواسيب الشخصية PCs", "الحواسيب الإلكترونية الأولى مثل ENIAC", "الهواتف الذكية المدمجة", "أجهزة الحاسوب المحمول"],
+        correct: 1,
+        exp: "الحواسيب الأولى كحاسوب ENIAC كانت ضخمة جداً واستخدمت في الأغراض العسكرية والحسابات."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "في أي حقبة زمنية بدأ انتشار الحواسب الشخصية (PCs) واستخدام الأفراد لها؟",
+        options: ["الأربعينيات والخمسينيات", "السبعينيات والثمانينيات", "العقد الأول من الألفية", "التسعينيات فقط"],
+        correct: 1,
+        exp: "انتشرت الحواسيب الشخصية (PCs) في حقبة السبعينيات والثمانينيات."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "ما الحدث التكنولوجي المحوري في التسعينيات الذي أتاح الوصول العالمي للمعلومات؟",
+        options: ["إتاحة الإنترنت للاستخدام التجاري وظهور الويب والبريد الإلكتروني", "اختراع الترانزستور الإلكتروني", "ظهور الحوسبة السحابية الموسعة", "ظهور الهواتف الذكية متعددة اللمس"],
+        correct: 0,
+        exp: "في التسعينيات أتيح الإنترنت تجارياً وظهر الويب مما أتاح الوصول العالمي للمعلومات."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "ما التطور البارز الذي ميز العقد الأول من الألفية (2000-2010)؟",
+        options: ["ظهور الحواسيب الصمامية الأولى", "ظهور الهواتف الذكية وانتشار الإنترنت عبر المحمول بسرعة", "الحوسبة الكمومية التجارية", "استبدال كافة الحواسب التقليدية"],
+        correct: 1,
+        exp: "شهد العقد الأول من الألفية ظهور الهواتف الذكية (مثل الآيفون) وانتشار الإنترنت المتنقل."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "بدأ تقديم موارد تكنولوجيا المعلومات كخدمات عبر الإنترنت وتطور تحليل البيانات الضخمة مع:",
+        options: ["ظهور الحواسيب الصمامية في الخمسينيات", "انتشار الحوسبة السحابية من العقد الثاني للألفية فصاعداً", "ظهور الآلات الكاتبة الإلكترونية", "اختراع الفأرة في السبعينيات"],
+        correct: 1,
+        exp: "انتشرت الحوسبة السحابية من العقد الثاني فصاعداً مقدمةً موارد تكنولوجيا المعلومات كخدمات."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "ما هي التحديات الفيزيائية التي تواجه استمرار تصغير الترانزستورات؟",
+        options: ["ازدياد تيارات التسرب وظهور التأثيرات الكمومية كالنفق الكمومي", "كبر حجم الأسلاك الكهربائية", "ثقل وزن المعالج النهائي", "انخفاض دقة ألوان الشاشات"],
+        correct: 0,
+        exp: "تصغير الترانزستورات جداً يؤدي لازدياد تيارات التسرب وظواهر كمومية مثل النفق الكمومي."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "لزيادة كفاءة الحواسيب بعيداً عن تصغير الترانزستورات وحده، اعتمدت الصناعة على:",
+        options: ["تقليل حجم الذاكرة", "تعدد الأنوية والمعالجة المتوازية والتصميمات المتخصصة", "الاعتماد على نواة واحدة فائقة التردد فقط", "إلغاء بطاقات الرسومات"],
+        correct: 1,
+        exp: "تعتمد المعالجات الحديثة على تعدد الأنوية وتوازي العمليات لتخطي حدود الترانزستور الفردي."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "ما هي وحدة المعلومات الأساسية في الحوسبة الكمومية؟",
+        options: ["البت (Bit)", "الكيوبت (Qubit)", "البايت (Byte)", "البيكسل (Pixel)"],
+        correct: 1,
+        exp: "تستخدم الحواسب التقليدية البت (Bit) بينما تستخدم الحواسيب الكمومية الكيوبت (Qubit)."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "ما الخاصية التي تمكن الكيوبت من تمثيل مزيج من حالتي 0 و 1 في الوقت نفسه؟",
+        options: ["التراكب الكمومي (Quantum Superposition)", "التدفق المغناطيسي", "التحيز الخوارزمي", "الانعكاس البصري"],
+        correct: 0,
+        exp: "خاصية التراكب الكمومي تسمح للكيوبت بأن يكون في حالة تراكب بين 0 و 1 معاً."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "هل تُعد الحوسبة الكمومية بديلاً عاماً سيستبدل جميع الحواسب الشخصية والهواتف؟",
+        options: ["نعم، ستلغي الحواسيب الحالية قريباً", "لا، بل هي طريقة متفوقة لحل فئات محددة ومعقدة من المسائل", "نعم، لأنها تستخدم البت الكلاسيكي أسرع", "لا، لأنها أبطأ من الحواسيب العادية"],
+        correct: 1,
+        exp: "الحوسبة الكمومية ليست بديلاً عاماً للحواسيب التقليدية، بل مخصصة لمسائل نوعية معقدة."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "تقنية تضيف عناصر أو معلومات رقمية فوق مشهد من العالم الحقيقي هي:",
+        options: ["الواقع الافتراضي (VR)", "الواقع المعزز (AR)", "الحوسبة السحابية", "التشفير المتماثل"],
+        correct: 1,
+        exp: "الواقع المعزز (AR) يُثري العالم الحقيقي بعناصر وبيانات رقمية مضافة."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "تقنية تضع المستخدم وتغمسه بالكامل داخل بيئة رقمية مولدة حاسوبياً هي:",
+        options: ["الواقع المعزز (AR)", "الواقع الافتراضي (VR)", "الحوسبة الطرفية", "التجارة الإلكترونية"],
+        correct: 1,
+        exp: "الواقع الافتراضي (VR) ينقل المستخدم لبيئة افتراضية رقمية معزولة بالكامل عن الواقع."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "لماذا تعالج السيارات ذاتية القيادة بياناتها محلياً بالحوسبة الطرفية بدلاً من السحابة؟",
+        options: ["لتقليل زمن الاستجابة وتفادي حوادث التأخير أثناء اتخاذ القرار", "لأن السيارة لا تملك اتصالاً بالإنترنت", "لتقليل استهلاك بطارية السيارة", "لإيقاف مستشعرات القيادة"],
+        correct: 0,
+        exp: "الحوسبة الطرفية تعالج البيانات فوراً داخل المركبة دون انتظار السحابة حرصاً على السلامة."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "ما المصطلح الدال على بيع وشراء السلع والخدمات عبر الإنترنت كأمازون؟",
+        options: ["التجارة الإلكترونية (E-commerce)", "العمل عن بعد", "الحوسبة الطرفية", "الواقع الافتراضي"],
+        correct: 0,
+        exp: "التجارة الإلكترونية تعني عمليات البيع والشراء وتبادل السلع والخدمات عبر الويب."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "الدفع بالبطاقات البنكية وتطبيقات الهاتف ورموز QR يُعبر عن تحول:",
+        options: ["الدفع غير النقدي (Cashless Payment)", "التجارة النقدية الورقية", "العمل عن بعد", "الحوسبة الموزعة"],
+        correct: 0,
+        exp: "الدفع غير النقدي يشمل تسوية المدفوعات رقمياً دون تداول العملات الورقية."
+    },
+    {
+        lesson: "تطور تكنولوجيا المعلومات",
+        q: "أداء الموظف مهام وظيفته من منزله أو موقع بعيد عبر الإنترنت يمثل:",
+        options: ["التعلم عبر الإنترنت", "العمل عن بعد (Remote Work)", "الحوسبة الطرفية", "التسويق الرقمي"],
+        correct: 1,
+        exp: "العمل عن بعد يتيح أداء المهام الوظيفية من المنزل بالاعتماد على الإنترنت."
+    },
+
+    // الدرس 2: كيف يعمل الذكاء الاصطناعي
+    {
+        lesson: "كيف يعمل الذكاء الاصطناعي",
+        q: "المجال العام الذي يضم أنظمة تنفذ مهام التعلم والتنبؤ والتعرف وتوليد المحتوى هو:",
+        options: ["قواعد البيانات", "الذكاء الاصطناعي (AI)", "نظم التشغيل", "بروتوكولات الشبكة"],
+        correct: 1,
+        exp: "الذكاء الاصطناعي (AI) هو المظلة الكبرى للأنظمة التي تحاكي القدرات الذهنية البشرية."
+    },
+    {
+        lesson: "كيف يعمل الذكاء الاصطناعي",
+        q: "كيف توصف غالبية أنظمة الذكاء الاصطناعي المطبقة في وقتنا الحالي؟",
+        options: ["أنظمة عامة تضاهي العقل البشري في كل المجالات", "أنظمة ضيقة النطاق مصممة لمهمة محددة أو مجموعة محدودة من المهام", "أنظمة واعية تماماً بذاتها", "أنظمة تعمل دون أي بيانات سابقة"],
+        correct: 1,
+        exp: "معظم الذكاء الاصطناعي الحالي هو ذكاء اصطناعي ضيق (Narrow AI) موجه لمهمة محددة."
+    },
+    {
+        lesson: "كيف يعمل الذكاء الاصطناعي",
+        q: "فرع من الذكاء الاصطناعي تتعلم فيه النماذج الأنماط من البيانات دون برمجة كل قاعدة صراحة:",
+        options: ["التعلم الآلي (Machine Learning)", "التصميم الإجرائي", "الحوسبة الطرفية", "البرمجة الثابتة"],
+        correct: 0,
+        exp: "التعلم الآلي (ML) يستنبط الأنماط والقواعد مباشرة من الأمثلة والبيانات التدريبية."
+    },
+    {
+        lesson: "كيف يعمل الذكاء الاصطناعي",
+        q: "ما الفرق الأساسي بين البرمجة التقليدية والتعلم الآلي؟",
+        options: ["في التقليدية يكتب الإنسان القواعد، بينما في التعلم الآلي يستنتج النموذج الأنماط من البيانات", "البرمجة التقليدية لا تستخدم أجهزة حاسوب", "التعلم الآلي يعتمد على القواعد اليدوية فقط", "لا يوجد أي فرق وظيفي بينهما"],
+        correct: 0,
+        exp: "في التقليدي نكتب القواعد ليطبقها الحاسوب؛ في التعلم الآلي نعطيه بيانات وأمثلة ليتعلم الأنماط."
+    },
+    {
+        lesson: "كيف يعمل الذكاء الاصطناعي",
+        q: "أسلوب من أساليب التعلم الآلي يعتمد على شبكات عصبية اصطناعية متعددة الطبقات:",
+        options: ["التعلم العميق (Deep Learning)", "البرمجة الهيكلية", "الحوسبة الطرفية", "مرشحات النصوص"],
+        correct: 0,
+        exp: "التعلم العميق (DL) يعتمد على شبكات عصبية اصطناعية ذات طبقات متعددة لتعلم الأنماط المعقدة."
+    },
+    {
+        lesson: "كيف يعمل الذكاء الاصطناعي",
+        q: "النموذج الحاسوبي المستوحى بصورة مبسطة من ترابط العصبونات في دماغ الإنسان هو:",
+        options: ["الشبكة العصبية الاصطناعية (ANN)", "المعالج المركزي", "جدار الحماية الناري", "خادم الويب"],
+        correct: 0,
+        exp: "الشبكة العصبية الاصطناعية نموذج يحاكي مبسطاً طريقة ترابط الخلايا العصبية."
+    },
+    {
+        lesson: "كيف يعمل الذكاء الاصطناعي",
+        q: "ما الذي يتم تعديله باستمرار داخل الشبكة العصبية أثناء تدريبها لتصحيح التنبؤات؟",
+        options: ["الأوزان (Weights)", "نوع شاشة الحاسوب", "سرعة التبريد", "سعة الهارد ديسك"],
+        correct: 0,
+        exp: "تتغير الأوزان (Weights) في اتصالات الشبكة أثناء التدريب لتقليل نسبة الخطأ."
+    },
+    {
+        lesson: "كيف يعمل الذكاء الاصطناعي",
+        q: "الذكاء الاصطناعي القادر على ابتكار نصوص جديدة، صور، أصوات، أو أكواد برمجية هو:",
+        options: ["الذكاء الاصطناعي التوليدي (GenAI)", "الذكاء الاصطناعي الكلاسيكي فقط", "مرشحات الرسائل المزعجة", "نظم التشغيل المكتبية"],
+        correct: 0,
+        exp: "الذكاء الاصطناعي التوليدي (GenAI) ينشئ محتوى جديداً استناداً لما تعلمه أثناء التدريب."
+    },
+    {
+        lesson: "كيف يعمل الذكاء الاصطناعي",
+        q: "تعتمد أغلب تطبيقات الذكاء الاصطناعي التوليدي المعاصرة مثل ChatGPT على:",
+        options: ["نماذج التعلم العميق (Deep Learning)", "البرمجة الإجرائية البسيطة", "الصمامات المفرغة", "البتات المنفصلة"],
+        correct: 0,
+        exp: "تعتمد النماذج التوليدية الحديثة في جوهرها على شبكات التعلم العميق المتقدمة."
+    },
+    {
+        lesson: "كيف يعمل الذكاء الاصطناعي",
+        q: "ما التسلسل التعليمي للمفاهيم من الأوسع والأشمل إلى الأكثر تخصصاً؟",
+        options: ["الذكاء الاصطناعي ← التعلم الآلي ← التعلم العميق ← التوليدي", "التعلم العميق ← التعلم الآلي ← الذكاء الاصطناعي", "التعلم الآلي ← الذكاء الاصطناعي ← التعلم العميق", "الذكاء الاصطناعي التوليدي ← الذكاء الاصطناعي ← التعلم الآلي"],
+        correct: 0,
+        exp: "الذكاء الاصطناعي يشمل التعلم الآلي، والأخير يضم التعلم العميق، والأخير يشغل التوليدي."
+    },
+    {
+        lesson: "كيف يعمل الذكاء الاصطناعي",
+        q: "إنتاج الذكاء الاصطناعي التوليدي لمعلومات تبدو مقنعة لكنها خاطئة وغير مدعومة واقعياً يُسمى:",
+        options: ["الهلوسة (Hallucination)", "التراكب الكمي", "الترجمة الآلية", "التدريب الموجه"],
+        correct: 0,
+        exp: "الهلوسة هي تقديم نموذج الذكاء الاصطناعي لمعلومات مغلوطة بصيغة واثقة ومقنعة."
+    },
+    {
+        lesson: "كيف يعمل الذكاء الاصطناعي",
+        q: "أي مما يلي يُعد مثالاً نموذجياً على استخدام التعلم الآلي في التطبيقات اليومية؟",
+        options: ["تصنيف الرسائل المزعجة (Spam) واقتراح المنتجات", "تنسيق الخطوط في معالج الكلمات", "طباعة ورقة على الطابعة", "توصيل كابل الشاشة"],
+        correct: 0,
+        exp: "مرشحات البريد المزعج واقتراح السلع هي من أقدم وأوضح تطبيقات التعلم الآلي."
+    },
+
+    // الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة
+    {
+        lesson: "الذكاء الاصطناعي في الحياة والصناعة",
+        q: "نظام يتنبأ بتفضيلات المستخدم من سلوكه السابق ويعرض له محتوى يلائمه كمنصة YouTube:",
+        options: ["نظام التوصية (Recommendation System)", "الترجمة الآلية", "المساعد الصوتي", "التعرف على الوجه"],
+        correct: 0,
+        exp: "نظام التوصية يعتمد على سجل المشاهدات والتفاعل لاقتراح المحتوى الملائم للمستخدم."
+    },
+    {
+        lesson: "الذكاء الاصطناعي في الحياة والصناعة",
+        q: "تطبيقات Siri ومساعد Google تُمثل تطبيقات مباشرة على:",
+        options: ["المساعدات الصوتية الذكية", "الصيانة التنبؤية", "الواقع الافتراضي", "التشفير بالمفتاح العام"],
+        correct: 0,
+        exp: "المساعدات الصوتية تتعرف على الصوت وتفهم الأوامر المنطوقة وتنفذها."
+    },
+    {
+        lesson: "الذكاء الاصطناعي في الحياة والصناعة",
+        q: "التقنية المستخدمة للتعرف على هوية الشخص لفتح قفل هاتفه الذكي هي:",
+        options: ["التعرف على الوجه (Facial Recognition)", "الترجمة الآلية", "الصيانة التنبؤية", "التوصية الرقمية"],
+        correct: 0,
+        exp: "التعرف على الوجه يكتشف ملامح الوجه في الصور ويطابقها مع هوية صاحب الجهاز."
+    },
+    {
+        lesson: "الذكاء الاصطناعي في الحياة والصناعة",
+        q: "أدوات Google Translate و DeepL تقدم نموذجاً عملياً لتطبيق:",
+        options: ["الترجمة الآلية الفورية", "فحص عيوب التصنيع", "توجيه خطوط الملاحة", "الصيانة التنبؤية"],
+        correct: 0,
+        exp: "تستخدم هذه المنصات الذكاء الاصطناعي للترجمة الآلية السريعة والدقيقة بين اللغات."
+    },
+    {
+        lesson: "الذكاء الاصطناعي في الحياة والصناعة",
+        q: "في قطاع التصنيع، مراقبة حرارة واهتزاز الماكينات لتوقع العطل قبل حدوثه يُعرف بـ:",
+        options: ["الصيانة التنبؤية (Predictive Maintenance)", "تحسين مسارات التوصيل", "فرز السير الذاتية", "أتمتة الفحص البصري"],
+        correct: 0,
+        exp: "الصيانة التنبؤية تمنع توقف الإنتاج المفاجئ عبر التنبؤ بالأعطال قبل وقوعها."
+    },
+    {
+        lesson: "الذكاء الاصطناعي في الحياة والصناعة",
+        q: "في الخدمات اللوجستية، يُستفاد من خوارزميات الذكاء الاصطناعي في:",
+        options: ["تحسين وتحديد أفضل مسارات سيارات التوصيل لتوفير الوقت والوقود", "فحص صور الرنين المغناطيسي", "تحديد مواعيد الحصاد الزراعي", "إنشاء مقاطع الفيديو"],
+        correct: 0,
+        exp: "تساعد الخوارزميات أساطيل التوصيل على اختيار أسرع المسارات وأقلها ازدحاماً."
+    },
+    {
+        lesson: "الذكاء الاصطناعي في الحياة والصناعة",
+        q: "في الرعاية الصحية، يُستخدم الذكاء الاصطناعي لتحليل صور الأشعة بهدف:",
+        options: ["الكشف المبكر عن الأورام والأمراض ودعم قرارات الأطباء", "تحديد أسعار العمليات الجراحية تلقائياً", "الاستغناء الكامل عن الأطباء البشريين", "إلغاء التحاليل الطبية"],
+        correct: 0,
+        exp: "يساعد التشخيص بالصور في مساندة الأطباء بالكشف السريع عن مؤشرات الأمراض."
+    },
+    {
+        lesson: "الذكاء الاصطناعي في الحياة والصناعة",
+        q: "لماذا يجب أن يؤكد الطبيب البشري التشخيص الطبي بدلاً من تركه للذكاء الاصطناعي وحده؟",
+        options: ["لأن القرار الطبي عالي الأثر وقد يُخطئ النظام أو يتأثر ببيانات تدريب متحيزة", "لأن أجهزة الحاسوب بطيئة في غرف الطوارئ", "لأن الذكاء الاصطناعي لا يحفظ الصور الطبية", "لأن الطبيب هو من صمم خوارزمية التعلم العميق"],
+        correct: 0,
+        exp: "القرارات عالية الأثر على حياة البشر تتطلب حتماً إشرافاً ومسؤولية من مختص بشري."
+    },
+    {
+        lesson: "الذكاء الاصطناعي في الحياة والصناعة",
+        q: "أي المهام التالية يبرع ويتفوق فيها الذكاء الاصطناعي بشكل خاص؟",
+        options: ["اكتشاف وتصنيف الأنماط المعقدة في البيانات الضخمة والاستدلال الاحتمالي", "إصدار الأحكام الأخلاقية العادلة وتحمل المسؤولية القانونية", "حماية خصوصية الأشخاص بدون تشريعات", "التعاطف الوجداني مع المرضى"],
+        correct: 0,
+        exp: "يتميز الذكاء الاصطناعي بسرعة إيجاد الأنماط المعقدة والتصنيف في البيانات الضخمة."
+    },
+    {
+        lesson: "الذكاء الاصطناعي في الحياة والصناعة",
+        q: "حالة عدم وضوح الكيفية أو المنطق الذي اتبعته الخوارزمية للوصول لقرارها تسمى:",
+        options: ["مشكلة الصندوق الأسود (Black Box Problem)", "مشكلة النفق الكمومي", "تيارات التسرب الكهربي", "أتمتة الفحص"],
+        correct: 0,
+        exp: "مشكلة الصندوق الأسود تعبر عن صعوبة تفسير آليات اتخاذ القرار الداخلي للنموذج."
+    },
+    {
+        lesson: "الذكاء الاصطناعي في الحياة والصناعة",
+        q: "في الزراعة، يفيد الذكاء الاصطناعي في:",
+        options: ["التنبؤ بموعد الحصاد والكشف المبكر عن الآفات وأمراض المحاصيل", "استبدال ضوء الشمس بإضاءات رقمية", "تشفير البذور زراعياً", "زيادة سرعة الرياح"],
+        correct: 0,
+        exp: "يساعد الذكاء الاصطناعي المزارعين في مراقبة صحة النبات وتوقع مواسم الحصاد."
+    },
+
+    // الدرس 4: القضايا الأخلاقية المتعلقة بالذكاء الاصطناعي
+    {
+        lesson: "القضايا الأخلاقية للذكاء الاصطناعي",
+        q: "نمط في مخرجات الذكاء الاصطناعي يؤدي إلى نتائج غير عادلة أو تمييز ضد فئات محددة يُعرف بـ:",
+        options: ["التحيز الخوارزمي (Algorithmic Bias)", "الهلوسة المعرفية", "المساءلة المهنية", "الشفافية الرقمية"],
+        correct: 0,
+        exp: "التحيز الخوارزمي هو انحراف منهجي في المخرجات يؤدي لقرارات غير منصفة."
+    },
+    {
+        lesson: "القضايا الأخلاقية للذكاء الاصطناعي",
+        q: "ما هو المصدر الأكثر شيوعاً لنشوء التحيز في أنظمة الذكاء الاصطناعي؟",
+        options: ["بيانات تدريب متحيزة أو غير كافية أو تعكس تمييزاً بشرياً سابقاً", "سرعة المعالج المركزي العالية", "زيادة سعة القرص الصلب للخادم", "استخدام فأرة حاسوب لاسلكية"],
+        correct: 0,
+        exp: "إذا تدرب النموذج على بيانات تاريخية منحازة فإنه يتعلم هذا الانحياز ويكرره."
+    },
+    {
+        lesson: "القضايا الأخلاقية للذكاء الاصطناعي",
+        q: "حق الفرد في حماية بياناته الشخصية وحياته من التتبع والمراقبة غير المصرح بها:",
+        options: ["الخصوصية (Privacy)", "الشفافية", "المساءلة", "التعلم الذاتي"],
+        correct: 0,
+        exp: "الخصوصية تضمن حماية بيانات الإنسان وتمنع انتهاكها أو استغلالها دون موافقة."
+    },
+    {
+        lesson: "القضايا الأخلاقية للذكاء الاصطناعي",
+        q: "ما التحدي الأخلاقي المرتبط بكاميرات التعرف على الوجه في الميادين العامة؟",
+        options: ["المساس بالخصوصية ومراقبة وتتبع حركة الأفراد باستمرار دون إذنهم", "زيادة حرارة أعمدة الإنارة", "انخفاض جودة البث التلفزيوني", "بطء حركة السير"],
+        correct: 0,
+        exp: "تثير هذه التقنية مخاوف حقيقية تتعلق بانتهاك الخصوصية وحرية التنقل دون مراقبة."
+    },
+    {
+        lesson: "القضايا الأخلاقية للذكاء الاصطناعي",
+        q: "التقنيات والأساليب التي تهدف لمساعدة البشر على فهم منطق وأسباب قرار الذكاء الاصطناعي:",
+        options: ["الذكاء الاصطناعي القابل للتفسير (XAI)", "التشفير بالمفتاح العام", "الحوسبة الطرفية", "التعلم غير الموجه"],
+        correct: 0,
+        exp: "يسعى Explainable AI (XAI) لجعل مخرجات النماذج قابلة للشرح والتفسير البشري."
+    },
+    {
+        lesson: "القضايا الأخلاقية للذكاء الاصطناعي",
+        q: "مبدأ أخلاقي يعني إتاحة معلومات واضحة للمستخدمين عن آلية عمل النظام وكيفية اتخاذ القرار:",
+        options: ["الشفافية (Transparency)", "المسؤولية المحدودة", "التحيز الإيجابي", "التشفير المتماثل"],
+        correct: 0,
+        exp: "الشفافية تقتضي إيضاح قواعد عمل النظام وحدوده بوضوح لمن يتعامل معه."
+    },
+    {
+        lesson: "القضايا الأخلاقية للذكاء الاصطناعي",
+        q: "المبدأ الأخلاقي الذي يؤكد على عدم التمييز ظلماً ضد أي شخص أو فئة بعينها هو:",
+        options: ["العدالة (Fairness)", "السرعة", "الكفاءة", "الإنتاجية"],
+        correct: 0,
+        exp: "العدالة تقتضي المساواة وتجنب المعاملة التمييزية الظالمة بحق أي فئة."
+    },
+    {
+        lesson: "القضايا الأخلاقية للذكاء الاصطناعي",
+        q: "ما الفرق بين الذكاء القابل للتفسير (XAI) والمساءلة (Accountability)؟",
+        options: ["XAI يشرح كيفية وصول النظام للقرار، والمساءلة تحدد من يُحاسب عن نتائج القرار", "XAI يحدد العقوبات القانونية فقط", "المساءلة تهتم بسرعة المعالجة الحسابية", "كلاهما لفظان متطابقان لنفس الوظيفة تماماً"],
+        correct: 0,
+        exp: "XAI يركز على شرح 'لماذا اتخذ القرار'، بينما المساءلة تبحث عن 'من يتحمل مسؤوليته'."
+    },
+    {
+        lesson: "القضايا الأخلاقية للذكاء الاصطناعي",
+        q: "تحديد أدوار وواجبات الأطراف المرتبطة بتطوير وتشغيل واستخدام النظام يُعبر عن:",
+        options: ["المسؤولية (Responsibility)", "التعلم الموزع", "التشفير", "المعالجة التوليدية"],
+        correct: 0,
+        exp: "المسؤولية تعني توزيع الأدوار والالتزامات بين المطور والمشغل والمستخدم."
+    },
+    {
+        lesson: "القضايا الأخلاقية للذكاء الاصطناعي",
+        q: "ما هي المبادئ الأربعة الأساسية المعتمدة للاستخدام الأخلاقي والمسؤول للذكاء الاصطناعي؟",
+        options: ["العدالة، الشفافية، حماية الخصوصية، والمساءلة", "السرعة، التوفير المالي، الحجم، والربح", "التشفير، التوقيع الرقمي، التوجيه، والحوسبة", "التعلم الآلي، العميق، التوليدي، والبيانات"],
+        correct: 0,
+        exp: "يقوم الذكاء الاصطناعي المسؤول على: العدالة، والشفافية، وحماية الخصوصية، والمساءلة."
+    }
+];
+
+// منطق اللعبة والـ Gamification
+let currentQIdx = 0;
+let userScore = 0;
+let streak = 0;
+let maxStreak = 0;
+let playerName = "البطل";
+
+const startScreen = document.getElementById('startScreen');
+const gameScreen = document.getElementById('gameScreen');
+const resultScreen = document.getElementById('resultScreen');
+
+function startGame() {
+    const inputName = document.getElementById('playerNameInput').value.trim();
+    if (!inputName) {
+        alert("من فضلك اكتب اسمك يا بطل قبل الانطلاق!");
+        return;
+    }
+    playerName = inputName;
+    startScreen.classList.remove('active');
+    gameScreen.classList.add('active');
+    
+    currentQIdx = 0;
+    userScore = 0;
+    streak = 0;
+    maxStreak = 0;
+    updateHud();
+    loadQuestion(currentQIdx);
+}
+
+function updateHud() {
+    document.getElementById('hudScore').textContent = `${userScore} XP`;
+    document.getElementById('hudStreak').textContent = streak;
+    document.getElementById('hudProgress').textContent = `${currentQIdx + 1} / ${quizData.length}`;
+    
+    const progressPercent = ((currentQIdx) / quizData.length) * 100;
+    document.getElementById('xpBar').style.width = `${progressPercent}%`;
+}
+
+function loadQuestion(idx) {
+    const item = quizData[idx];
+    document.getElementById('lessonNameText').textContent = item.lesson;
+    document.getElementById('qTitleText').textContent = `${idx + 1}. ${item.q}`;
+
+    const optionsBox = document.getElementById('optionsBox');
+    optionsBox.innerHTML = '';
+    
+    const feedbackBox = document.getElementById('feedbackBox');
+    feedbackBox.style.display = 'none';
+    feedbackBox.className = 'live-feedback';
+
+    const nextBtn = document.getElementById('nextBtn');
+    nextBtn.style.display = 'none';
+
+    const letters = ['أ', 'ب', 'ج', 'د'];
+    item.options.forEach((optText, optIdx) => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.innerHTML = `
+            <div class="opt-badge">[${letters[optIdx]}]</div>
+            <span style="flex-grow:1;">${optText}</span>
+        `;
+        btn.onclick = () => selectAnswer(optIdx, btn);
+        optionsBox.appendChild(btn);
+    });
+
+    updateHud();
+}
+
+function selectAnswer(chosenIdx, clickedBtn) {
+    const item = quizData[currentQIdx];
+    const allButtons = document.querySelectorAll('.opt-btn');
+    allButtons.forEach(b => b.disabled = true);
+
+    const feedbackBox = document.getElementById('feedbackBox');
+    const nextBtn = document.getElementById('nextBtn');
+
+    if (chosenIdx === item.correct) {
+        clickedBtn.classList.add('correct');
+        userScore += 100;
+        streak++;
+        if (streak > maxStreak) maxStreak = streak;
+
+        // إطلاق تأثير الـ Confetti الخفيف في الإجابة الصحيحة
+        if (typeof confetti === 'function' && streak % 3 === 0) {
+            confetti({
+                particleCount: 40,
+                spread: 60,
+                origin: { y: 0.8 }
+            });
+        }
+
+        feedbackBox.className = 'live-feedback success';
+        feedbackBox.innerHTML = `<strong>✨ إجابة رائعة وصحيحة! (+100 XP)</strong><br>${item.exp}`;
+    } else {
+        clickedBtn.classList.add('wrong');
+        allButtons[item.correct].classList.add('correct');
+        streak = 0; // إعادة ضبط الـ streak
+
+        feedbackBox.className = 'live-feedback error';
+        feedbackBox.innerHTML = `<strong>❌ إجابة غير دقيقة!</strong><br>${item.exp}`;
+    }
+
+    feedbackBox.style.display = 'block';
+    nextBtn.style.display = 'inline-flex';
+    updateHud();
+}
+
+function nextQuestion() {
+    currentQIdx++;
+    if (currentQIdx < quizData.length) {
+        loadQuestion(currentQIdx);
+    } else {
+        finishGame();
+    }
+}
+
+function finishGame() {
+    gameScreen.classList.remove('active');
+    resultScreen.classList.add('active');
+
+    const totalQuestions = quizData.length;
+    const correctCount = userScore / 100;
+    const accuracy = Math.round((correctCount / totalQuestions) * 100);
+
+    document.getElementById('playerFinalName').textContent = `تهانينا للبطل: ${playerName}`;
+    document.getElementById('finalCorrectCount').textContent = correctCount;
+    document.getElementById('finalXpVal').textContent = `${userScore} XP`;
+    document.getElementById('finalAccuracy').textContent = `${accuracy}%`;
+    document.getElementById('finalStreakVal').textContent = maxStreak;
+
+    // تحديد اللقب الرياضي وفق النتيجة
+    const rankTitle = document.getElementById('playerRankTitle');
+    const trophy = document.getElementById('trophyIcon');
+    if (accuracy >= 90) {
+        rankTitle.textContent = "🥇 أسطورة الذكاء الاصطناعي (Grandmaster)";
+        trophy.textContent = "🏆";
+    } else if (accuracy >= 75) {
+        rankTitle.textContent = "🥈 خبير ومبرمج محترف (Expert)";
+        trophy.textContent = "⭐";
+    } else if (accuracy >= 50) {
+        rankTitle.textContent = "🥉 مستكشف واعد للتقنية (Explorer)";
+        trophy.textContent = "🎖️";
+    } else {
+        rankTitle.textContent = "مبتدئ يحتاج لمزيد من المراجعة والتركيز!";
+        trophy.textContent = "📖";
+    }
+
+    // احتفال ضخم عند إنهاء التحدي بنجاح
+    if (typeof confetti === 'function') {
+        confetti({
+            particleCount: 120,
+            spread: 90,
+            origin: { y: 0.6 }
+        });
+    }
+
+    document.getElementById('xpBar').style.width = '100%';
+}
+
+function restartGame() {
+    resultScreen.classList.remove('active');
+    startScreen.classList.add('active');
+    document.getElementById('playerNameInput').value = '';
+}
+</script>
+
+</body>
+</html>
