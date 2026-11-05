@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بنك الأسئلة المتقدم - الفصل الأول: تكنولوجيا المعلومات والمجتمع</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            user-select: none;
+        }
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(13, 148, 136, 0.4);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(13, 148, 136, 0.8);
+        }
+        .custom-card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- Navbar -->
+    <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                    <i class="fa-solid fa-brain text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        الذكاء الاصطناعي وتكنولوجيا المعلومات
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-200 border border-teal-200 dark:border-teal-700">الفصل 1</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">الصف الثاني الثانوي (بكالوريا) • بنك أسئلة التحدي والتقييم الدقيق (+1 / -1)</p>
+                </div>
+            </div>
+
+            <!-- Stats & Utility Controls -->
+            <div class="flex items-center gap-2 sm:gap-4">
+                <!-- Score Counter Preview -->
+                <div class="hidden sm:flex items-center gap-3 bg-slate-100 dark:bg-slate-700/60 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-600 text-xs font-semibold">
+                    <span class="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-check"></i> <span id="top-correct-count">0</span>
+                    </span>
+                    <span class="text-rose-500 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-xmark"></i> <span id="top-wrong-count">0</span>
+                    </span>
+                    <span class="text-brand-600 dark:text-brand-400 font-bold border-r pr-2 border-slate-300 dark:border-slate-600">
+                        النقاط: <span id="top-net-score">0</span>
+                    </span>
+                </div>
+
+                <!-- Timer Display -->
+                <div id="timer-box" class="flex items-center gap-2 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 px-3 py-1.5 rounded-xl text-xs font-bold font-mono">
+                    <i class="fa-regular fa-clock animate-pulse"></i>
+                    <span id="timer-text">00:00</span>
+                </div>
+
+                <!-- Dark Mode Toggle -->
+                <button id="theme-toggle" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition" title="تبديل الوضع">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:inline"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-6">
+
+        <!-- Left / Secondary Column: Filter, Navigation Grid & Quiz Config -->
+        <aside class="w-full lg:w-80 shrink-0 space-y-5 order-2 lg:order-1">
+            <!-- Test Mode & Rules Card -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 custom-card-shadow">
+                <h3 class="font-bold text-sm text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-brand-600 dark:text-brand-400"></i> نظام وحساب الدرجات
+                </h3>
+                <div class="p-3 bg-slate-50 dark:bg-slate-700/40 rounded-xl border border-slate-200 dark:border-slate-600 mb-4 text-xs space-y-1.5 leading-relaxed">
+                    <div class="flex justify-between items-center text-emerald-600 dark:text-emerald-400 font-bold">
+                        <span>إجابة صحيحة:</span>
+                        <span>+1 درجة</span>
+                    </div>
+                    <div class="flex justify-between items-center text-rose-500 font-bold">
+                        <span>إجابة خاطئة (خصم جزائي):</span>
+                        <span>-1 درجة</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-500 dark:text-slate-400">
+                        <span>تخطي السؤال دون إجابة:</span>
+                        <span>0 درجات</span>
+                    </div>
+                </div>
+
+                <!-- Mode Options -->
+                <div class="space-y-3">
+                    <label class="flex items-center justify-between cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <span>التصحيح والشرح اللحظي</span>
+                        <input type="checkbox" id="instant-feedback-toggle" checked class="w-4 h-4 accent-brand-600 rounded">
+                    </label>
+                    <label class="flex items-center justify-between cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <span>إيقاف المؤقت التنازلي</span>
+                        <input type="checkbox" id="timer-toggle" class="w-4 h-4 accent-brand-600 rounded">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Lessons Filter -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 custom-card-shadow">
+                <label for="lesson-filter" class="block font-bold text-sm text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-book-open text-brand-600"></i> تصفية حسب دروس الفصل:
+                </label>
+                <select id="lesson-filter" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition">
+                    <option value="all">جميع دروس الفصل الأول (50 سؤالاً كاملاً)</option>
+                    <option value="1">الدرس 1: تطور تكنولوجيا المعلومات والتحول الاجتماعي</option>
+                    <option value="2">الدرس 2: كيف يعمل الذكاء الاصطناعي (ML, DL, GenAI)</option>
+                    <option value="3">الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة</option>
+                    <option value="4">الدرس 4: القضايا الأخلاقية، التحيز الخوارزمي و XAI</option>
+                </select>
+            </div>
+
+            <!-- Question Navigation Grid -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 custom-card-shadow">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-grip text-brand-600"></i> خارطة الأسئلة
+                    </h3>
+                    <span id="grid-status-count" class="text-xs text-slate-500 dark:text-slate-400">0/50</span>
+                </div>
+
+                <!-- Badges Legend -->
+                <div class="flex flex-wrap gap-2 text-[10px] text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700">
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> صحيحة</span>
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> خاطئة</span>
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-brand-500"></span> مجابة</span>
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> إشارة</span>
+                </div>
+
+                <!-- Grid items -->
+                <div id="questions-grid" class="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-5 gap-2 max-h-64 overflow-y-auto p-1">
+                    <!-- Javascript generates 50 numbered pills here -->
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700 flex gap-2">
+                    <button id="finish-quiz-btn" class="w-full py-2 px-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-flag-checkered"></i> إنهاء الاختبار وعرض النتيجة
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right / Primary Question Box Area -->
+        <section class="flex-1 space-y-5 order-1 lg:order-2">
+            
+            <!-- Progress Bar -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 custom-card-shadow">
+                <div class="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">
+                    <span id="progress-text">سؤال 1 من 50</span>
+                    <span id="progress-percent">2%</span>
+                </div>
+                <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div id="progress-bar-fill" class="h-full bg-gradient-to-l from-brand-600 to-teal-400 w-[2%] transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- Active Question Card -->
+            <div id="question-card" class="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-700 custom-card-shadow relative">
+                
+                <!-- Category Badge & Actions -->
+                <div class="flex items-center justify-between gap-2 mb-4">
+                    <span id="q-lesson-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
+                        الدرس 1
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <button id="flag-btn" class="p-2 text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 transition text-sm rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700" title="وضع إشارة للمراجعة">
+                            <i class="fa-regular fa-bookmark" id="flag-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Question Text -->
+                <div class="mb-6">
+                    <div class="flex items-start gap-3">
+                        <span id="q-number" class="w-8 h-8 rounded-xl bg-brand-50 dark:bg-brand-950/80 text-brand-700 dark:text-brand-300 font-extrabold flex items-center justify-center shrink-0 border border-brand-200 dark:border-brand-800 text-sm">
+                            1
+                        </span>
+                        <h2 id="q-title" class="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-relaxed">
+                            نص السؤال هنا...
+                        </h2>
+                    </div>
+                </div>
+
+                <!-- Multiple Choice Options -->
+                <div id="options-container" class="space-y-3">
+                    <!-- Generated via JS -->
+                </div>
+
+                <!-- Explanation Box (Shows in Instant Feedback or after test finish) -->
+                <div id="explanation-box" class="hidden mt-6 p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm leading-relaxed">
+                    <div class="flex items-center gap-2 font-bold mb-2" id="explanation-header">
+                        <i class="fa-solid fa-circle-info text-brand-600"></i>
+                        <span>التحليل والتفسير النموذجي:</span>
+                    </div>
+                    <p id="explanation-text" class="text-slate-600 dark:text-slate-300"></p>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="mt-8 pt-5 border-t border-slate-100 dark:border-slate-700/80 flex items-center justify-between gap-3">
+                    <button id="prev-btn" class="py-2 px-4 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-chevron-right"></i> السابق
+                    </button>
+                    
+                    <button id="clear-ans-btn" class="py-2 px-3 rounded-xl text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
+                        إلغاء الإجابة (تجنب الخصم)
+                    </button>
+
+                    <button id="next-btn" class="py-2 px-5 rounded-xl text-xs sm:text-sm font-bold bg-brand-600 hover:bg-brand-700 text-white transition flex items-center gap-2 shadow-sm">
+                        التالي <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Modal / View (Hidden by default, shown on finish) -->
+            <div id="results-view" class="hidden bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-700 custom-card-shadow space-y-6">
+                <div class="text-center space-y-2">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-gradient-to-tr from-brand-600 to-teal-400 flex items-center justify-center text-white text-3xl shadow-lg shadow-brand-500/30">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-900 dark:text-white">نتيجة الاختبار وتقييم الأداء</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">تقييم دقيق يطبق نظام الخصم (-1 للخطأ، +1 للصواب، 0 للأسئلة المتروكة)</p>
+                </div>
+
+                <!-- Main Score Big Banner -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div class="p-4 rounded-2xl bg-brand-50 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-800 text-center">
+                        <div class="text-xs text-brand-700 dark:text-brand-300 font-semibold mb-1">الدرجة الصافية</div>
+                        <div id="final-net-score" class="text-2xl sm:text-3xl font-black text-brand-600 dark:text-brand-400">0</div>
+                        <div class="text-[10px] text-slate-500 dark:text-slate-400">من إجمالي 50</div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-center">
+                        <div class="text-xs text-emerald-700 dark:text-emerald-300 font-semibold mb-1">إجابات صحيحة (+1)</div>
+                        <div id="final-correct" class="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">0</div>
+                        <div class="text-[10px] text-slate-500 dark:text-slate-400">أسئلة مؤكدة</div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-center">
+                        <div class="text-xs text-rose-700 dark:text-rose-300 font-semibold mb-1">إجابات خاطئة (-1)</div>
+                        <div id="final-wrong" class="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-400">0</div>
+                        <div class="text-[10px] text-slate-500 dark:text-slate-400">خصم درجات</div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 text-center">
+                        <div class="text-xs text-slate-600 dark:text-slate-300 font-semibold mb-1">متروك / بدون إجابة</div>
+                        <div id="final-unanswered" class="text-2xl sm:text-3xl font-black text-slate-600 dark:text-slate-200">0</div>
+                        <div class="text-[10px] text-slate-500 dark:text-slate-400">0 خصم</div>
+                    </div>
+                </div>
+
+                <!-- Percentage & Evaluation -->
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-700/30 border border-slate-200 dark:border-slate-700 text-center">
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">النسبة المئوية المحتسبة:</span>
+                    <span id="final-percentage" class="text-lg font-bold text-slate-900 dark:text-white mr-2">0%</span>
+                    <div id="final-verdict" class="text-sm font-extrabold mt-1 text-brand-600 dark:text-brand-400">...</div>
+                </div>
+
+                <!-- Breakdown by Lessons -->
+                <div class="space-y-3">
+                    <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-brand-600"></i> تفصيل الأداء حسب دروس الفصل الأول:
+                    </h3>
+                    <div id="lessons-breakdown-list" class="space-y-2 text-xs">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Review & Retry Actions -->
+                <div class="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                    <button id="review-all-btn" class="py-2.5 px-5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs transition flex items-center gap-2">
+                        <i class="fa-solid fa-list-check"></i> مراجعة الأسئلة مع الشرح النموذجي
+                    </button>
+                    <button id="review-mistakes-btn" class="py-2.5 px-5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i> تدريب تصحيح الأخطاء فقط
+                    </button>
+                    <button id="restart-quiz-btn" class="py-2.5 px-5 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-bold text-xs transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> إعادة الاختبار من البداية
+                    </button>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Custom Modal for Alerts / Confirmations -->
+    <div id="custom-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 max-w-sm w-full border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4">
+            <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl mx-auto">
+                <i class="fa-solid fa-circle-question"></i>
+            </div>
+            <div class="text-center">
+                <h3 id="modal-title" class="font-bold text-base text-slate-900 dark:text-white">تنبيه</h3>
+                <p id="modal-body" class="text-xs text-slate-500 dark:text-slate-400 mt-1">هل أنت متأكد من المتابعة؟</p>
+            </div>
+            <div class="flex gap-2">
+                <button id="modal-cancel" class="flex-1 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">إلغاء</button>
+                <button id="modal-confirm" class="flex-1 py-2 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 50 Detailed Questions & Quiz Logic -->
+    <script>
+        // 50 Challenging MCQ Questions Covering Chapter 1: Lessons 1, 2, 3, and 4
+        const questionsData = [
+            // --- الدرس الأول: تطور تكنولوجيا المعلومات والتحول الاجتماعي (1-12) ---
+            {
+                id: 1,
+                lesson: 1,
+                lessonName: "الدرس 1: تطور تكنولوجيا المعلومات",
+                question: "وفقاً لما ورد في تطور عتاد الحوسبة، ما هو التوصيف العلمي الدقيق لـ 'قانون مور'؟",
+                options: [
+                    "قانون فيزيائي ثابت لا يتغير مثل قوانين الحركة والجاذبية الأرضية.",
+                    "ملاحظة واتجاه تجريبي وتاريخي في صناعة أشباه الموصلات وليس قانوناً فيزيائياً حتمياً.",
+                    "نظرية رياضية تثبت تضاعف سرعة تردد المعالج (GHz) كل عامين بدقة.",
+                    "قانون هندسي ينص على تضاعف عدد الأنوية في الحواسيب كل 5 أعوام."
+                ],
+                correct: 1,
+                explanation: "يوضح المقرر بوضوح أن 'قانون مور ليس قانوناً فيزيائياً ثابتاً مثل قوانين الحركة أو الجاذبية، وإنما هو ملاحظة تجريبية واتجاه تاريخي' ينص على تضاعف عدد الترانزستورات داخل الشريحة كل عامين تقريباً."
+            },
+            {
+                id: 2,
+                lesson: 1,
+                lessonName: "الدرس 1: تطور تكنولوجيا المعلومات",
+                question: "لماذا لم يعد بالإمكان الاستمرار في تصغير حجم الترانزستور إلى ما لا نهاية لزيادة الأداء وفق قانون مور التقليدي؟",
+                options: [
+                    "لأن تكلفة تصنيع الشاشات وأجهزة العرض أصبحت مرتفعة جداً.",
+                    "بسبب عدم رغبة المستخدمين في الحصول على أجهزة أصغر حجماً.",
+                    "لظهور تحديات فيزيائية وهندسية مثل زيادة تيارات التسرب وظاهرة النفق الكمومي (Quantum Tunneling).",
+                    "بسبب عدم توفر برمجيات قادرة على التعامل مع الترانزستورات الصغيرة."
+                ],
+                correct: 2,
+                explanation: "عندما تصبح أبعاد الترانزستور صغيرة جداً تقترب من المقياس الذري، تحدث تيارات تسرب كهربائي واستهلاك طاقة وحرارة عالية، بالإضافة إلى تأثيرات ميكانيكا الكم كـ 'النفق الكمومي' حيث تعبر الإلكترونات الحواجز المعزولة."
+            },
+            {
+                id: 3,
+                lesson: 1,
+                lessonName: "الدرس 1: تطور تكنولوجيا المعلومات",
+                question: "لتجاوز عقبات تصغير الترانزستور ومواصلة تحسين أداء الحواسب، اتجهت صناعة الرقائق الحديثة إلى:",
+                options: [
+                    "العودة لاستخدام الصمامات المفرغة ذات المقاومة العالية.",
+                    "الاعتماد على تعدد الأنوية (Multi-core)، المعالجة المتوازية، والتصميمات المخصصة للمهام.",
+                    "تقليص الذاكرة العشوائية لتقليل استهلاك المعالج للكهرباء.",
+                    "إلغاء اتصال الحواسيب بالإنترنت لتقليل الضغط على الأجهزة."
+                ],
+                correct: 1,
+                explanation: "عندما واجه تصغير الترانزستور قيوداً فيزيائية، لم يتوقف تطور الحواسيب، بل اعتمد تعزيز الأداء على تعدد الأنوية والمعالجة المتوازية والتصميمات المتخصصة كشرائح معالجة الرسوميات والذكاء الاصطناعي."
+            },
+            {
+                id: 4,
+                lesson: 1,
+                lessonName: "الدرس 1: تطور تكنولوجيا المعلومات",
+                question: "ما الفرق الجوهري بين البت الكلاسيكي (Bit) والكيوبت (Qubit) في معالجة البيانات؟",
+                options: [
+                    "البت يحمل قيماً لا نهائية، بينما الكيوبت يقتصر على الصفر فقط.",
+                    "البت يمثل حالة محددة واحدة في الوقت الواحد (إما 0 أو 1)، بينما الكيوبت يستغل التراكب الكمومي لتمثيل مزيج منهما في نفس الوقت.",
+                    "الكيوبت يستخدم فقط في حفظ النصوص، بينما البت مخصص لتشفير الصور.",
+                    "البت يعمل بسرعة الضوء بينما الكيوبت يعمل بواسطة الموجات اللاسلكية."
+                ],
+                correct: 1,
+                explanation: "البت التقليدي يكون إما 0 أو 1 بشكل قاطع، في حين يستند الكيوبت في الحوسبة الكمومية إلى مبدأ التراكب الكمي (Superposition)، مما يسمح بتمثيل حالات متعددة متزامنة."
+            },
+            {
+                id: 5,
+                lesson: 1,
+                lessonName: "الدرس 1: تطور تكنولوجيا المعلومات",
+                question: "أي من العبارات التالية تمثل الفهم الصحيح لواقع ومستقبل الحوسبة الكمومية (Quantum Computing)؟",
+                options: [
+                    "الحاسب الكمومي هو بديل شامل وسريع سيحل محل جميع الحواسيب الشخصية والهواتف الذكية قريباً.",
+                    "الحوسبة الكمومية تسرع جميع أنواع العمليات الحسابية والبرمجية دون أي استثناء.",
+                    "الحوسبة الكمومية توفر تفوقاً هائلاً في فئات محددة من المسائل المعقدة، لكنها ليست بديلاً عاماً لكافة الحواسيب التقليدية.",
+                    "الحواسيب الكمومية تم ابتكارها في أربعينيات القرن الماضي بواسطة الصمامات المفرغة."
+                ],
+                correct: 2,
+                explanation: "يؤكد الكتاب المدرسي أن الحوسبة الكمومية 'قد تكون قوية جداً في فئات محددة من المسائل، لكنها ليست بديلاً عاماً لكل الحواسيب التقليدية ولا تسرع جميع الحسابات'."
+            },
+            {
+                id: 6,
+                lesson: 1,
+                lessonName: "الدرس 1: تطور تكنولوجيا المعلومات",
+                question: "ما السبب الحاسم وراء لجوء أنظمة القيادة الذاتية للمركبات إلى 'الحوسبة الطرفية' (Edge Computing) بدلاً من الاعتماد المطلق على السحابة؟",
+                options: [
+                    "لتوفير مساحة داخل مقصورة السيارة للركاب.",
+                    "لأن الخوادم السحابية عاجزة برمجياً عن قيادة السيارات.",
+                    "لتقليل زمن الاستجابة (Latency) ومعالجة بيانات المستشعرات محلياً فوراً لأن تأخير الاتصال بالسحابة قد يهدد السلامة.",
+                    "لتقليل استهلاك بطارية السيارة من خلال إيقاف الكاميرات أثناء السير."
+                ],
+                correct: 2,
+                explanation: "تتطلب القرارات الحرجة مثل تجنب الاصطدام استجابة في أجزاء من الثانية. الحوسبة الطرفية تعالج البيانات محلياً على متن السيارة فوراً دون انتظار زمن إرسال واسترجاع البيانات عبر السحابة."
+            },
+            {
+                id: 7,
+                lesson: 1,
+                lessonName: "الدرس 1: تطور تكنولوجيا المعلومات",
+                question: "التقنية التي تقوم بإضافة عناصر ومعلومات ورسوم رقمية تفاعلية تعلو المشهد الحقيقي الواقعي تسمى:",
+                options: [
+                    "الواقع الافتراضي (Virtual Reality - VR).",
+                    "الواقع المعزز (Augmented Reality - AR).",
+                    "الحوسبة السحابية (Cloud Computing).",
+                    "الحوسبة الكمومية (Quantum Computing)."
+                ],
+                correct: 1,
+                explanation: "الواقع المعزز (AR) يضيف عناصر رقمية فوق العالم الحقيقي، بينما الواقع الافتراضي (VR) يعزل المستخدم وينقله بالكامل داخل بيئة رقمية اصطناعية مولدة حاسوبياً."
+            },
+            {
+                id: 8,
+                lesson: 1,
+                lessonName: "الدرس 1: تطور تكنولوجيا المعلومات",
+                question: "ما هو الترتيب الزمني الدقيق للتحولات التكنولوجية الكبرى وفق ما ورد في المنهج؟",
+                options: [
+                    "الهواتف الذكية ← الحواسيب الشخصية ← الحواسيب الإلكترونية الأولى ← الحوسبة السحابية.",
+                    "الحواسيب الإلكترونية الأولى (الصمامات) ← الحواسب الشخصية (PCs) ← انتشار الويب وتجارة الإنترنت ← الهواتف الذكية ← الحوسبة السحابية.",
+                    "ظهور الويب ← الحواسب الإلكترونية الأولى ← الحوسبة السحابية ← الحواسب الشخصية.",
+                    "الحوسبة السحابية ← الهواتف الذكية ← الحواسب الشخصية ← حاسوب ENIAC."
+                ],
+                correct: 1,
+                explanation: "التسلسل التاريخي: الحواسيب الأولى (40s-60s) ثم الحواسب الشخصية (70s-80s) ثم تجارة الإنترنت والويب (90s) ثم الهواتف الذكية (العقد الأول) ثم الحوسبة السحابية والذكاء الاصطناعي (العقد الثاني فصاعداً)."
+            },
+            {
+                id: 9,
+                lesson: 1,
+                lessonName: "الدرس 1: تطور تكنولوجيا المعلومات",
+                question: "في أي حقبة زمنية بدأ التحول الذي سمح للأفراد العاديين بامتلاك الحواسيب واستخدامها في المنازل بدلاً من انحصارها في الأغراض العسكرية؟",
+                options: [
+                    "الأربعينيات إلى الخمسينيات.",
+                    "السبعينيات والثمانينيات مع ظهور الحواسب الشخصية (PCs).",
+                    "العقد الثاني من الألفية الثالثة.",
+                    "تسعينيات القرن الماضي مع الحوسبة الكمية."
+                ],
+                correct: 1,
+                explanation: "شهدت السبعينيات والثمانينيات من القرن العشرين انتشار الحواسيب الشخصية (PCs) وبداية استخدام الأفراد للحاسب بعد أن كان حكراً على المؤسسات الكبرى والأغراض العسكرية."
+            },
+            {
+                id: 10,
+                lesson: 1,
+                lessonName: "الدرس 1: تطور تكنولوجيا المعلومات",
+                question: "ما التحول المجتمعي الرئيسي الذي أحدثه انتشار الحوسبة السحابية ابتداءً من العقد الثاني للألفية؟",
+                options: [
+                    "إلغاء الحاجة للاتصال بالإنترنت تماماً في الشركات.",
+                    "تقديم موارد وتقنيات المعلومات في صورة خدمات مرنة عبر الإنترنت ودعم تحليل البيانات الضخمة ونماذج الذكاء الاصطناعي.",
+                    "إجبار جميع الأفراد على الدفع النقدي التقليدي فقط.",
+                    "تقليل كفاءة معالجة البيانات وتراجع التخزين الرقمي."
+                ],
+                correct: 1,
+                explanation: "مكنت الحوسبة السحابية المؤسسات من الحصول على البنية التحتية والبرمجيات كخدمة عبر الإنترنت (IT as a Service)، ودعمت معالجة البيانات الضخمة وتدريب نماذج الذكاء الاصطناعي المتقدمة."
+            },
+            {
+                id: 11,
+                lesson: 1,
+                lessonName: "الدرس 1: تطور تكنولوجيا المعلومات",
+                question: "تطبيق يقوم فيه طبيب مقيم في القاهرة بإجراء استشارة طبية وتوجيه فريق طبي في أسوان عبر منصة رقمية متخصصة؛ هذا الموقف يجسد تحول:",
+                options: [
+                    "الحوسبة الكمية فقط.",
+                    "العمل عن بعد وتقديم الخدمات عبر الشبكات الحديثة.",
+                    "الواقع الافتراضي الترفيهي البحت.",
+                    "استبدال الترانزستور بالصمامات المفرغة."
+                ],
+                correct: 1,
+                explanation: "أداء المهام الطبية أو الوظيفية من موقع جغرافي بعيد اعتماداً على الاتصال الشبكي يندرج تحت مفهوم وممارسات 'العمل والخدمات عن بُعد' (Remote Work / Tele-services)."
+            },
+            {
+                id: 12,
+                lesson: 1,
+                lessonName: "الدرس 1: تطور تكنولوجيا المعلومات",
+                question: "عندما تشتري وجبة إفطارك وتقوم بمسح رمز الاستجابة السريعة (QR Code) ببطاقتك البنكية عبر هاتفك، فإن هذا التحول يعبر عن مفهوم:",
+                options: [
+                    "التجارة العسكرية.",
+                    "الدفع غير النقدي (Cashless Payment).",
+                    "الحوسبة الفائقة غير المتصلة.",
+                    "الواقع المعزز في المحاسبة."
+                ],
+                correct: 1,
+                explanation: "الدفع غير النقدي يشمل استخدام البطاقات المصرفية، المحافظ الرقمية وتطبيقات الهواتف المعتمدة على رموز QR دون تداول العملات الورقية والمعدنية."
+            },
+
+            // --- الدرس الثاني: كيف يعمل الذكاء الاصطناعي (13-25) ---
+            {
+                id: 13,
+                lesson: 2,
+                lessonName: "الدرس 2: كيف يعمل الذكاء الاصطناعي",
+                question: "ما الفارق الأساسي بين البرمجة التقليدية (Traditional Programming) ونظم التعلم الآلي (Machine Learning)؟",
+                options: [
+                    "البرمجة التقليدية تعمل بدون حاسوب، بينما التعلم الآلي يتطلب حواسيب كمومية حصراً.",
+                    "في البرمجة التقليدية يكتب المبرمج القواعد صراحة لينفذها الحاسوب، بينما في التعلم الآلي يتعلم النموذج الأنماط والقواعد بنفسه من البيانات والأمثلة.",
+                    "التعلم الآلي يعتمد على قواعد ثابتة لا تتغير إطلاقاً بتغير البيانات الجديدة.",
+                    "البرمجة التقليدية قادرة دوماً على توليد الصور والنصوص تلقائياً."
+                ],
+                correct: 1,
+                explanation: "في البرمجة التقليدية يقوم الإنسان بصياغة كل قاعدة شرطية بدقة. في التعلم الآلي يقدم الإنسان البيانات والأمثلة، ويقوم النموذج باستنتاج الأنماط الإحصائية والتنبؤات ذاتياً."
+            },
+            {
+                id: 14,
+                lesson: 2,
+                lessonName: "الدرس 2: كيف يعمل الذكاء الاصطناعي",
+                question: "أي من المخططات الآتية يعبر عن 'العلاقة التعليمية المبسطة' الصحيحة بين مفاهيم الذكاء الاصطناعي؟",
+                options: [
+                    "التعلم العميق ⊃ الذكاء الاصطناعي ⊃ التعلم الآلي ⊃ الذكاء التوليدي.",
+                    "الذكاء الاصطناعي ⊃ التعلم الآلي ⊃ التعلم العميق ⊃ غالبية تطبيقات الذكاء الاصطناعي التوليدي الحديثة.",
+                    "الذكاء الاصطناعي التوليدي ⊃ التعلم العميق ⊃ الذكاء الاصطناعي ⊃ التعلم الآلي.",
+                    "التعلم الآلي والتعلم العميق مجالان منفصلان تماماً ولا علاقة بينهما."
+                ],
+                correct: 1,
+                explanation: "الذكاء الاصطناعي هو المظلة الكبرى، يندرج تحته التعلم الآلي كفرع منه، ويندرج تحت التعلم الآلي 'التعلم العميق' كأسلوب، وتعتمد معظم نماذج الذكاء التوليدي الحالية على التعلم العميق."
+            },
+            {
+                id: 15,
+                lesson: 2,
+                lessonName: "الدرس 2: كيف يعمل الذكاء الاصطناعي",
+                question: "الشبكات العصبية الاصطناعية (ANN) تتكون من طبقات عصبونية مرتبطة، ماذا يحدث لهذه الشبكة أثناء مرحلة 'التدريب' لتتمكن من التمييز بين المدخلات؟",
+                options: [
+                    "تتغير أحجام شاشات العرض تلقائياً لحفظ البيانات.",
+                    "يتم حذف طبقات الإدخال واستبدالها بوحدات تحكم فيزيائية.",
+                    "تتعدل وتتغير 'أوزان' (Weights) الوصلات العصبية تدريجياً لتقليل الخطأ واكتشاف الأنماط بدقة.",
+                    "يتم استبدال المعالج الإلكتروني بمعالج ميكانيكي."
+                ],
+                correct: 2,
+                explanation: "الوزن هو قيمة رقمية تحدد أهمية الإشارة الواصلة بين خلية وأخرى. في التدريب تبدأ الشبكة بأوزان غير دقيقة، ومع تكرار عرض البيانات والخطأ، تُعدل الأوزان باستمرار لتحسين الدقة."
+            },
+            {
+                id: 16,
+                lesson: 2,
+                lessonName: "الدرس 2: كيف يعمل الذكاء الاصطناعي",
+                question: "بماذا يتميز 'التعلم العميق' (Deep Learning) مقارنة بأساليب التعلم الآلي التقليدية البسيطة؟",
+                options: [
+                    "يستخدم شبكات عصبية متعددة الطبقات تبرع في استخلاص التمثيلات المعقدة تلقائياً من البيانات غير المهيكلة كالأصوات والصور.",
+                    "يحتاج فقط إلى مثالين أو ثلاثة لتدريب النموذج بنجاح تام.",
+                    "يعتمد حصرياً على جداول البيانات النصية اليدوية وقواعد IF-THEN الشرطية فقط.",
+                    "لا يتطلب أي قدرات حوسبة متقدمة أو بيانات تدريب كبيرة."
+                ],
+                correct: 0,
+                explanation: "التعلم العميق يتميز بوجود طبقات مخفية متعددة (Deep Neural Networks) تمكنه من تعلم تمثيلات وأنماط شديدة التعقيد في الصور والأصوات دون الحاجة لاستخراج الخصائص يدوياً."
+            },
+            {
+                id: 17,
+                lesson: 2,
+                lessonName: "الدرس 2: كيف يعمل الذكاء الاصطناعي",
+                question: "ما هو التعريف الدقيق لـ 'الذكاء الاصطناعي التوليدي' (Generative AI)؟",
+                options: [
+                    "نظام يقتصر دوره الصارم على تصنيف رسائل البريد إلى مزعجة أو غير مزعجة.",
+                    "نظم قادرة على توليد وإنشاء محتوى جديد تماماً (نصوص، صور، أكواد برمجية، أصوات) استناداً لما تعلمته من أنماط البيانات.",
+                    "أجهزة مادية تمنع وصول الفيروسات إلى الحواسيب وتولد طاقة بديلة.",
+                    "خوارزميات مخصصة فقط لقياس سرعة المعالجة الميكانيكية للبيانات."
+                ],
+                correct: 1,
+                explanation: "الذكاء التوليدي لا يقتصر على التصنيف والتحليل، بل يبتكر وينشئ محتوى جديداً أصيلاً (نصوص، صور، أصوات، برمجيات) بمحاكاة الأنماط التي تدرب عليها."
+            },
+            {
+                id: 18,
+                lesson: 2,
+                lessonName: "الدرس 2: كيف يعمل الذكاء الاصطناعي",
+                question: "ظاهرة 'الهلوسة' (Hallucination) في نماذج الذكاء الاصطناعي التوليدي تعني:",
+                options: [
+                    "توقف الحاسوب المفاجئ عن العمل بسبب ارتفاع درجة حرارته.",
+                    "إنتاج النموذج لمعلومات تبدو مقنعة وفصيحة لغوياً، ولكنها غير صحيحة واقعياً أو غير مستندة لمصادر حقيقية.",
+                    "قدرة النموذج على قراءة أفكار المستخدمين ومشاعرهم دون كتابة.",
+                    "تعرض النظام لاختراق سيبراني خارجي أثناء كتابة الإجابة."
+                ],
+                correct: 1,
+                explanation: "الهلوسة هي قيام النموذج بتوليد مخرجات ومعلومات تبدو معقولة ومصاغة بثقة، لكنها خاطئة كلياً أو مختلقة، مما يستوجب التدقيق البشري والتحقق من المراجع دائماً."
+            },
+            {
+                id: 19,
+                lesson: 2,
+                lessonName: "الدرس 2: كيف يعمل الذكاء الاصطناعي",
+                question: "تُصنف معظم أنظمة الذكاء الاصطناعي المطبقة والناجحة في وقتنا الحالي على أنها:",
+                options: [
+                    "ذكاء اصطناعي عام (AGI) قادر على إنجاز كافة المهام العقلية للبشر بكفاءة متطابقة.",
+                    "ذكاء اصطناعي ضيق النطاق (Narrow AI) مصمم لأداء مهام محددة بدقة (كالتعرف على الوجوه أو الترجمة).",
+                    "أنظمة واعية تملك مشاعر وإدراكاً ذاتياً كاملاً وتتخذ قرارات مستقلة بلا تدريب.",
+                    "برمجيات عشوائية لا تستند إلى أي بيانات سابقة."
+                ],
+                correct: 1,
+                explanation: "يوضح الدرس أن معظم أنظمة الذكاء الاصطناعي الحالية هي أنظمة 'ضيقة النطاق' (Narrow AI)، متخصصة في مهمة واحدة محددة كالتصنيف أو التنبؤ أو الترجمة."
+            },
+            {
+                id: 20,
+                lesson: 2,
+                lessonName: "الدرس 2: كيف يعمل الذكاء الاصطناعي",
+                question: "لماذا يواجه نموذج تعلم عميق تم تدريبه على تشخيص أورام معينة صعوبة بالغة وخطأً فادحاً عند اختباره على حالة نادرة لم ترد إطلاقاً في بيانات تدريبه؟",
+                options: [
+                    "لأن الذكاء الاصطناعي يرفض معالجة البيانات غير المسجلة لديه لأسباب قانونية.",
+                    "لأن التعلم العميق يعتمد على استخلاص الأنماط الإحصائية من البيانات الكبيرة، فإذا غاب النمط تماماً عن التدريب عجز عن التعميم الصحيح.",
+                    "لأن المعالجات تفقد قدرتها على الحوسبة عند رؤية الحالات النادرة.",
+                    "لأن الشبكة العصبية لا يمكن تدريبها إلا على البيانات الإيجابية فقط."
+                ],
+                correct: 1,
+                explanation: "يعتمد التعلم العميق على وجود أمثلة كافية لبناء الروابط والأوزان؛ فإذا كانت الحالة نادرة ولم يتم تمثيلها إطلاقاً في بيانات التدريب، يعجز النموذج عن التعرف على نمطها."
+            },
+            {
+                id: 21,
+                lesson: 2,
+                lessonName: "الدرس 2: كيف يعمل الذكاء الاصطناعي",
+                question: "في نظام فلترة البريد الإلكتروني، يتم فحص الرسائل وتوزيعها إما إلى 'البريد الوارد' أو 'البريد المزعج (Spam)'. هذه المهمة في التعلم الآلي تسمى:",
+                options: [
+                    "توليد المحتوى (Generation).",
+                    "التصنيف (Classification).",
+                    "التشفير المتماثل (Symmetric Encryption).",
+                    "المحاكاة الطرفية (Edge Emulation)."
+                ],
+                correct: 1,
+                explanation: "تصنيف الرسائل (Spam / Ham) هو تطبيق نموذجي على 'التصنيف' (Classification) في التعلم الآلي، حيث يتعلم النظام فرز المدخلات إلى فئات محددة مسبقاً."
+            },
+            {
+                id: 22,
+                lesson: 2,
+                lessonName: "الدرس 2: كيف يعمل الذكاء الاصطناعي",
+                question: "أي مما يلي يُعد مثالاً على 'الاستدلال التنبؤي' (Prediction) بواسطة خوارزميات التعلم الآلي؟",
+                options: [
+                    "رسم واجهة تطبيق على الشاشة بلغة HTML.",
+                    "توقع متجر إلكتروني لاحتمالية شراء عميل لمنتج معين بناءً على سلوكه وتصفحه السابق.",
+                    "إيقاف تشغيل مكبر الصوت عند نزع القابس الكهربائي.",
+                    "تخزين ملف صوتي داخل مجلد على القرص الصلب."
+                ],
+                correct: 1,
+                explanation: "التنبؤ (Prediction) يستخدم الأنماط التاريخية المستخلصة لتقدير سلوك أو حدث مستقبلي، مثل احتمالية إتمام عملية شراء أو توقع أسعار الأسهم أو حالة الطقس."
+            },
+            {
+                id: 23,
+                lesson: 2,
+                lessonName: "الدرس 2: كيف يعمل الذكاء الاصطناعي",
+                question: "أحد الطلاب اعتمد على أداة ذكاء اصطناعي توليدي لكتابة تقرير تاريخي وقدمه دون مراجعة، فتبين أن التقرير يستشهد بمعارك وأسماء كتب لم تحدث إطلاقاً. السبب المباشر هو:",
+                options: [
+                    "تراجع سرعة الاتصال بالإنترنت أثناء إنشاء النص.",
+                    "وقوع النظام في مشكلة 'الهلوسة' وتأليفه لمراجع ومعلومات وهمية تبدو صحيحة صياغةً.",
+                    "إصابة المتصفح بفيروس عطل إعدادات لغة التقرير.",
+                    "استخدام نظام تشفير المفتاح العام أثناء الإجابة."
+                ],
+                correct: 1,
+                explanation: "الهلوسة تجعل النموذج يختلق أحداثاً ومراجع خيالية غير صحيحة ويبدو أسلوبه واثقاً ومقنعاً، وهو ما يفرض مراجعة المصادر الأصلية دائماً وعدم النسخ المباشر."
+            },
+            {
+                id: 24,
+                lesson: 2,
+                lessonName: "الدرس 2: كيف يعمل الذكاء الاصطناعي",
+                question: "ما هو الدور الحقيقي الذي يلعبه 'الإنسان' في بناء وتشغيل أنظمة التعلم الآلي؟",
+                options: [
+                    "يقوم المبرمج بكتابة شروط منطقية حتمية تغطي ملايين الحالات الاحتمالية يدوياً.",
+                    "يقوم الإنسان بتوفير البيانات المناسبة وتنظيفها وتجهيز هيكل النموذج وتقييم أدائه وتدريبه.",
+                    "ينحصر دوره في توصيل الأجهزة بالطاقة الكهربائية دون أي إشراف على الخوارزميات.",
+                    "لا دور للإنسان إطلاقاً لأن الآلات تطور نفسها تلقائياً منذ لحظة تصنيعها."
+                ],
+                correct: 1,
+                explanation: "الإنسان يختار هيكل النموذج، ويجمع بيانات التدريب ويصنفها وينظفها، ويضبط المعاملات ويراقب الأداء لمنع التحيز وضمان سلامة المخرجات."
+            },
+            {
+                id: 25,
+                lesson: 2,
+                lessonName: "الدرس 2: كيف يعمل الذكاء الاصطناعي",
+                question: "لماذا يُقال إن تمثيل العلاقة بين AI و ML و DL هو 'علاقة تعليمية مبسطة وليست قاعدة احتواء صارمة' في جميع الأحوال؟",
+                options: [
+                    "لأن الذكاء الاصطناعي لم يعد موجوداً في البرمجيات الحالية.",
+                    "لأن هناك أساليب ذكاء اصطناعي رمزية وقائمة على القواعد (Rule-based) لا تستخدم التعلم الآلي أصلاً، كما قد تتداخل بعض المفاهيم وفق التطبيق.",
+                    "لأن التعلم العميق تم اختراعه قبل ظهور مفهوم الذكاء الاصطناعي بعقود.",
+                    "لأن جميع تطبيقات الذكاء التوليدي محظورة في التعليم المدرسي."
+                ],
+                correct: 1,
+                explanation: "تعتبر علاقة الفئات المتداخلة تبسيطاً تعليمياً؛ فالذكاء الاصطناعي يشمل أيضاً أنظمة خبيرة كلاسيكية وقواعد منطقية صريحة لا تعتمد على تعلم الأنماط من البيانات إطلاقاً."
+            },
+
+            // --- الدرس الثالث: الذكاء الاصطناعي في الحياة اليومية والصناعة (26-38) ---
+            {
+                id: 26,
+                lesson: 3,
+                lessonName: "الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة",
+                question: "في المصانع الحديثة، تقوم حساسات مثبتة على التوربينات بقياس درجات الحرارة والاهتزازات للتنبؤ بالأعطال قبل وقوعها واستبدال القطع مسبقاً. يُعرف هذا التطبيق بـ:",
+                options: [
+                    "الصيانة التفاعلية الطارئة.",
+                    "الصيانة التنبؤية (Predictive Maintenance).",
+                    "التشخيص الطبي الإشعاعي.",
+                    "الخدمات اللوجستية الميدانية."
+                ],
+                correct: 1,
+                explanation: "الصيانة التنبؤية تستخدم بيانات المستشعرات والذكاء الاصطناعي لتحليل مؤشرات الإجهاد كالحرارة والاهتزاز لتوقع توقيت عطل المعدات وتفاديه قبل توقف خطوط الإنتاج."
+            },
+            {
+                id: 27,
+                lesson: 3,
+                lessonName: "الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة",
+                question: "أي من المهام والقدرات التالية يبرع فيها الذكاء الاصطناعي بشكل فائق ويتفوق فيها عملياً على الإنسان؟",
+                options: [
+                    "إصدار الأحكام الأخلاقية المعقدة في النزاعات الاجتماعية.",
+                    "إيجاد وتصنيف الأنماط الخفية في كميات ضخمة ومعقدة من البيانات كالصور والأصوات والنصوص بسرعة هائلة.",
+                    "تحمل المسؤولية القانونية والأخلاقية عن القرارات المصيرية.",
+                    "حماية الخصوصية ذاتياً دون الحاجة إلى تشريعات وضوابط بشرية."
+                ],
+                correct: 1,
+                explanation: "يبرع الذكاء الاصطناعي في معالجة كميات مهولة من البيانات واستخلاص الأنماط والتعرف على الصور والاستدلال الاحتمالي بسرعة تفوق البشر بمراحل."
+            },
+            {
+                id: 28,
+                lesson: 3,
+                lessonName: "الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة",
+                question: "ما المقصود بـ 'مشكلة الصندوق الأسود' (Black Box Problem) في أنظمة الذكاء الاصطناعي المعاصرة؟",
+                options: [
+                    "تلف الهيكل الخارجي لجهاز الكمبيوتر وعدم القدرة على فتحه.",
+                    "صعوبة أو استحالة فهم وتفسير الآلية والخطوات الداخلية الدقيقة التي بنى عليها النظام حكمه أو قراره المعقد.",
+                    "انقطاع الكهرباء عن خوادم الذكاء الاصطناعي في غرف البيانات المظلمة.",
+                    "انحسار استخدام الذكاء الاصطناعي في تسجيل بيانات الطيران فقط."
+                ],
+                correct: 1,
+                explanation: "تنشأ مشكلة الصندوق الأسود عندما تكون العلاقات والأوزان الرياضية داخل ملايين العقد العصبية معقدة للغاية، مما يجعل من المتعذر تتبع المنطق الداخلي المؤدي للقرار بوضوح."
+            },
+            {
+                id: 29,
+                lesson: 3,
+                lessonName: "الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة",
+                question: "لماذا تشترط المعايير الطبية الدولية أن يكون التشخيص النهائي للأورام من صور الأشعة السينية معتمداً من 'طبيب بشري' حتى لو كانت دقة الذكاء الاصطناعي 99%؟",
+                options: [
+                    "لأن الذكاء الاصطناعي بطيء جداً في فحص صور الأشعة.",
+                    "لأن هذا القرار عالي الأثر يتعلق بحياة المريض، والذكاء الاصطناعي قد يخطئ ولا يمكنه تحمل المسؤولية الطبية والقانونية والأخلاقية.",
+                    "لأن صور الرنين المغناطيسي لا يمكن رقمنتها أو إدخالها للحاسوب.",
+                    "لأن الأطباء يمنعون استخدام الحواسيب داخل المستشفيات حفاظاً على سرية العمل."
+                ],
+                correct: 1,
+                explanation: "القرارات عالية الأثر (High-stakes decisions) كالصحة والقضاء تتطلب إلزامياً إشرافاً ومسؤولية بشرية، لأن النظام التقني لا يتحمل التبعات القانونية والأخلاقية المحتملة للخطأ."
+            },
+            {
+                id: 30,
+                lesson: 3,
+                lessonName: "الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة",
+                question: "في قطاع الخدمات اللوجستية وإدارة الأساطيل، يُستخدم الذكاء الاصطناعي بشكل أساسي في:",
+                options: [
+                    "تحسين مسارات التوصيل بناءً على حركة المرور والمسافات والطقس لتقليل الوقت والوقود.",
+                    "تصنيع الإطارات ميكانيكياً داخل محركات الشاحنات.",
+                    "منع الشاحنات من استخدام الطرق السريعة.",
+                    "الاستغناء الكامل عن الطرق واستبدالها بنقل البيانات عبر السحاب."
+                ],
+                correct: 0,
+                explanation: "يحلل الذكاء الاصطناعي في اللوجستيات المتغيرات الآنية كالازدحام وساعات العمل وعدد الطرود لاقتراح المسارات المثلى (Route Optimization)."
+            },
+            {
+                id: 31,
+                lesson: 3,
+                lessonName: "الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة",
+                question: "أي من الخدمات التالية تُعد مثالاً مباشراً على 'أنظمة التوصية' (Recommendation Systems) في حياتنا اليومية؟",
+                options: [
+                    "كتابة مستند على برنامج معالجة الكلمات وتنسيق الخطوط.",
+                    "اقتراح منصة YouTube أو Spotify لمقاطع فيديو أو مسارات صوتية تناسب اهتماماتك السابقة.",
+                    "استخدام الآلة الحاسبة لضرب عددين كبيرين.",
+                    "توصيل كابل الشاحن بمنفذ الهاتف المحمول."
+                ],
+                correct: 1,
+                explanation: "أنظمة التوصية تتنبأ بتفضيلات المستخدم بناءً على سلوكه وتفاعلاته السابقة (كالمشاهدات والنقرات) وتعرض المحتوى الأكثر ملاءمة له."
+            },
+            {
+                id: 32,
+                lesson: 3,
+                lessonName: "الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة",
+                question: "تستخدم شركة زراعية طائرات بدون طيار (Drones) مدعومة بكاميرات ذكية للتحليق فوق الحقول. الغرض الأبرز للذكاء الاصطناعي هنا هو:",
+                options: [
+                    "حراسة المزرعة ليلاً وإصدار أصوات تحذيرية فقط.",
+                    "الكشف المبكر عن الآفات والأمراض النباتية ومراقبة صحة المحاصيل وتقدير مواعيد الحصاد بدقة.",
+                    "حفر قنوات الري بمخالب ميكانيكية ذاتية الحركة.",
+                    "تغيير التركيب الجيني للتربة فورياً عن بعد."
+                ],
+                correct: 1,
+                explanation: "في الزراعة، يقوم الذكاء الاصطناعي بتحليل الصور الجوية الملتقطة لاكتشاف علامات الإجهاد المائي، الآفات الحشرية، وتحديد مواعيد نضج المحصول."
+            },
+            {
+                id: 33,
+                lesson: 3,
+                lessonName: "الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة",
+                question: "عندما تطلب شفهياً من المساعد الصوتي (مثل Siri أو Google Assistant): 'اضبط المنبه غداً الساعة 6 صباحاً'، فإن النظام يجمع بين تقنيتي:",
+                options: [
+                    "التعرف على الصوت ومعالجة الأوامر الطبيعية، ثم تنفيذ الإجراء المطلوب.",
+                    "الصيانة التنبؤية والتشفير المتماثل فقط.",
+                    "الحوسبة الكمومية والتبريد الفائق.",
+                    "الواقع الافتراضي واسترجاع النسخ الاحتياطية."
+                ],
+                correct: 0,
+                explanation: "المساعدات الصوتية الذكية تستخدم التعرف التلقائي على الكلام (Speech Recognition) وفهم اللغة الطبيعية (NLU) لاستيعاب المعنى وتشغيل التطبيق المطلوب."
+            },
+            {
+                id: 34,
+                lesson: 3,
+                lessonName: "الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة",
+                question: "كل الأمور التالية تندرج تحت 'ما يتطلب الحذر الشديد والإشراف البشري عند استخدام الذكاء الاصطناعي'، ما عدا:",
+                options: [
+                    "القرارات ذات البعد الأخلاقي التي قد تسبب تمييزاً ضد فئات معينة.",
+                    "معالجة البيانات والملفات الرقمية وحساب المتوسطات الرياضية بسرعة فائقة.",
+                    "التعامل مع السجلات الطبية والشخصية شديدة الحساسية وحمايتها من الانكشاف.",
+                    "تحديد المسؤولية القانونية عن وقوع حادث لمركبة ذاتية القيادة."
+                ],
+                correct: 1,
+                explanation: "السرعة العالية في العمليات الحسابية والرياضية هي ميزة تقنية يبرع فيها النظام، وليست مصدر قلق يتطلب الحذر مقارنة بالقضايا الأخلاقية والخصوصية والقرارات المصيرية."
+            },
+            {
+                id: 35,
+                lesson: 3,
+                lessonName: "الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة",
+                question: "تستخدم منصات التجارة الإلكترونية الكبرى تقنيات الذكاء الاصطناعي لتحليل سجل المشتريات. ما الخطر المتعلق بـ 'الخصوصية' الذي يثير قلق المستخدمين في هذا الصدد؟",
+                options: [
+                    "انخفاض جودة البضائع المشتراة عبر الإنترنت.",
+                    "الجمع الجماعي وتتبع الاهتمامات السلوكية الدقيقة ومشاركتها مع أطراف إعلانية دون موافقة واعية.",
+                    "سرعة وصول الطرود إلى المنازل في نفس اليوم.",
+                    "عدم قدرة الموقع على عرض أسعار المنتجات بالعملة المحلية."
+                ],
+                correct: 1,
+                explanation: "تتبع نشاط المستخدم ومشترياته وتفضيلاته وتحليلها يشكل جمعاً مكثفاً لبيانات السلوك الشخصي الرقمي، مما يثير مخاوف التجسس والانتهاك الإعلاني للخصوصية."
+            },
+            {
+                id: 36,
+                lesson: 3,
+                lessonName: "الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة",
+                question: "في خط إنتاج لتصنيع الأجهزة الإلكترونية، يتم تمرير الرقائق أمام كاميرات مزودة بنظام ذكاء اصطناعي. ما هي وظيفة هذا النظام؟",
+                options: [
+                    "تسجيل مقاطع فيديو ترويجية للعمال في المصنع.",
+                    "أتمتة فحص الجودة واكتشاف العيوب الدقيقة والكسور في المنتجات بسرعة تفوق العين البشرية.",
+                    "إيقاف تشغيل المصنع بمجرد دخول العمال إلى صالة الإنتاج.",
+                    "حساب رواتب الموظفين بناءً على ملامح وجوههم فقط."
+                ],
+                correct: 1,
+                explanation: "أتمتة مراقبة الجودة (Automated Quality Inspection) باستخدام الرؤية الحاسوبية تفحص ملايين المنتجات في وقت قياسي وترصد أدق العيوب التصنيعية."
+            },
+            {
+                id: 37,
+                lesson: 3,
+                lessonName: "الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة",
+                question: "تطبيق الترجمة الآلية الفورية (مثل DeepL أو Google Translate) تطور كثيراً بفضل اعتماده على:",
+                options: [
+                    "معاجم ورقية مخزنة تُترجم كلمة بكلمة حرفياً دون مراعاة السياق.",
+                    "نماذج التعلم العميق التي تفهم سياق الجمل والتركيب الدلالي للغات المختلفة.",
+                    "إيقاف قواعد النحو والاستعاضة عنها بالترجمة الصوتية العشوائية.",
+                    "تحويل الكلمات إلى إشارات مورس اللاسلكية."
+                ],
+                correct: 1,
+                explanation: "انتقلت الترجمة الحديثة من القواميس الحرفية إلى نماذج الشبكات العصبية العميقة التي تتعلم من ملايين النصوص الموازية لفهم المعنى والسياق الدقيق."
+            },
+            {
+                id: 38,
+                lesson: 3,
+                lessonName: "الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة",
+                question: "عندما ترفض خوارزمية ذكاء اصطناعي في بنك منح قرض لأحد العملاء دون إبداء أي تفسير أو توضيح للمعايير التي استندت إليها، فإن هذا الموقف يجسد عيباً متعلقاً بـ:",
+                options: [
+                    "سرعة معالجة الحاسوب الزائدة.",
+                    "مشكلة الصندوق الأسود وانعدام الشفافية في تفسير القرار.",
+                    "استهلاك الخادم لكميات كبيرة من الكهرباء.",
+                    "استخدام نظام التشفير غير المتماثل في حفظ الأموال."
+                ],
+                correct: 1,
+                explanation: "عندما يعجز المستخدم أو المسؤول عن توضيح لماذا اتخذ النظام هذا القرار بالتحديد، فإننا نكون أمام 'مشكلة الصندوق الأسود' وغياب الشفافية التفسيرية."
+            },
+
+            // --- الدرس الرابع: القضايا الأخلاقية المتعلقة بالذكاء الاصطناعي (39-50) ---
+            {
+                id: 39,
+                lesson: 4,
+                lessonName: "الدرس 4: القضايا الأخلاقية في الذكاء الاصطناعي",
+                question: "ما هو 'التحيز الخوارزمي' (Algorithmic Bias) وفقاً لمفاهيم الكتاب المدرسي؟",
+                options: [
+                    "عطل برمجي يؤدي إلى إغلاق برنامج الذكاء الاصطناعي فجأة.",
+                    "نمط في مخرجات النظام يؤدي إلى قرارات وأحكام غير عادلة أو تمييزية أو ضارة ضد فئة معينة.",
+                    "زيادة كفاءة الخوارزمية في التعامل مع جميع الأفراد على قدم المساواة التامة.",
+                    "تفضيل الذكاء الاصطناعي للأجهزة الحديثة على الحواسب القديمة."
+                ],
+                correct: 1,
+                explanation: "التحيز الخوارزمي هو نمط في النتائج يفضل أو يقصي مجموعات معينة بصورة غير عادلة، وينشأ غالباً من بيانات التدريب أو طريقة تصميم النموذج أو سياق استخدامه."
+            },
+            {
+                id: 40,
+                lesson: 4,
+                lessonName: "الدرس 4: القضايا الأخلاقية في الذكاء الاصطناعي",
+                question: "قامت شركة بتدريب نظام ذكاء اصطناعي لفرز طلبات التوظيف بالاعتماد على سجلات التعيين السابقة للشركة على مدى العشرين عاماً الماضية، فقام النظام باستبعاد طلبات المتقدمات من الإناث تلقائياً! ما السبب المباشر لهذا التحيز؟",
+                options: [
+                    "النظام يكره الإناث بوعي ذاتي.",
+                    "انعكاس نزعات تمييزية تاريخية سابقة كانت موجودة في بيانات التدريب التي تعلم منها النظام.",
+                    "ضعف سرعة شبكة الإنترنت أثناء تنزيل السير الذاتية.",
+                    "استخدام المتقدمات لخطوط ونصوص غير متوافقة مع المتصفح."
+                ],
+                correct: 1,
+                explanation: "الذكاء الاصطناعي لا يملك مشاعر أو كراهية، ولكنه يعكس النزعات التمييزية السابقة الموجودة في البيانات التاريخية؛ فإذا كان التوظيف السابق يفضل الذكور، تعلم النظام هذا النمط وكرره."
+            },
+            {
+                id: 41,
+                lesson: 4,
+                lessonName: "الدرس 4: القضايا الأخلاقية في الذكاء الاصطناعي",
+                question: "ما الفرق الأساسي والجوهري بين 'الذكاء الاصطناعي القابل للتفسير' (XAI) ومفهوم 'المساءلة' (Accountability)؟",
+                options: [
+                    "XAI يسأل: 'من الذي يحاسب ويدفع التعويض؟'، بينما المساءلة تشرح المعادلات الرياضية.",
+                    "XAI يركز على توضيح 'كيف ولماذا' وصل النظام إلى القرار، بينما المساءلة تحدد 'من هي الجهة أو الشخص' المسؤول قانونياً وأخلاقياً عن نتائج القرار.",
+                    "المساءلة تختص بالأجهزة الإلكترونية فقط، بينما XAI يختص بحماية كلمات المرور.",
+                    "لا يوجد أي فرق بينهما فهما كلمتان مترادفتان لنفس المفهوم."
+                ],
+                correct: 1,
+                explanation: "الذكاء القابل للتفسير (XAI) يقدم الشرح التقني والمنطقي لأسباب القرار، في حين تختص المساءلة (Accountability) بتحديد الطرف البشري أو المؤسسي الذي يتحمل المحاسبة والتبعات."
+            },
+            {
+                id: 42,
+                lesson: 4,
+                lessonName: "الدرس 4: القضايا الأخلاقية في الذكاء الاصطناعي",
+                question: "ما المبدأ الأخلاقي الذي يتحقق عندما توفر المؤسسة للمستخدم معلومات واضحة ومفهومة حول آلية عمل النظام، المدخلات المعتمدة، حدوده البرمجية، وكيفية اتخاذه للقرار؟",
+                options: [
+                    "مبدأ الشفافية (Transparency).",
+                    "مبدأ الحوسبة الطرفية.",
+                    "مبدأ انعدام الثقة (Zero Trust).",
+                    "مبدأ التراكب الكمومي."
+                ],
+                correct: 0,
+                explanation: "الشفافية (Transparency) تعني إتاحة معلومات واضحة ومناسبة حول النظام، كيفية استخدامه، والمنطق الكامن خلف قراراته وحدوده دون إخفاء أو تعتيم."
+            },
+            {
+                id: 43,
+                lesson: 4,
+                lessonName: "الدرس 4: القضايا الأخلاقية في الذكاء الاصطناعي",
+                question: "فيما يخص 'المسؤولية' (Responsibility) عند وقوع ضرر ناجم عن قرار لنظام ذكاء اصطناعي، يوضح المنهج أنه:",
+                options: [
+                    "يوجد قالب قانوني ثابت وواحد يوزع المسؤولية بالتطابق في كل الحالات.",
+                    "المطور هو المسؤول الوحيد دائماً والمستخدم معفى من أي التزام.",
+                    "لا يوجد توزيع واحد للمسؤولية يصلح لكل السياقات، بل تختلف باختلاف أدوار المطور، والجهة المشغلة، والمستخدم وطريقة الاستخدام والقوانين.",
+                    "يتم إلقاء المسؤولية الجنائية على خوارزمية الذكاء الاصطناعي وحبس السيرفر."
+                ],
+                correct: 2,
+                explanation: "المسؤولية تتوزع حسب السياق: فالمطور مسؤول عن التصميم الآمن، والمشغل عن توفير بيئة وبيانات سليمة، والمستخدم عن الالتزام بالتعليمات وضوابط التشغيل."
+            },
+            {
+                id: 44,
+                lesson: 4,
+                lessonName: "الدرس 4: القضايا الأخلاقية في الذكاء الاصطناعي",
+                question: "نظام تعرف على الوجه في مطار دولي تبين أنه يحقق دقة 99% مع ذوي البشرة الفاتحة، بينما تنخفض دقته إلى 72% مع ذوي البشرة الداكنة! ما هو التحليل الهندسي المرجح لهذا الخلل الأخلاقي؟",
+                options: [
+                    "كاميرات المطار لا تعمل بكفاءة أثناء مرور المسافرين.",
+                    "بيانات التدريب التي تعلم منها النظام كانت غير ممثلة كفاية وتفتقر لعدد عادل من صور ذوي البشرة الداكنة.",
+                    "النظام يرفض السفر الدولي لأسباب تتعلق بالتأشيرات.",
+                    "ذوو البشرة الداكنة يتحركون بسرعة أكبر أمام الكاميرات."
+                ],
+                correct: 1,
+                explanation: "قلة تمثيل فئة معينة في بيانات التدريب (Underrepresented data) تؤدي مباشرة إلى ضعف قدرة الشبكة العصبية على استخلاص أنماط تلك الفئة وتدني دقة النموذج بحقها."
+            },
+            {
+                id: 45,
+                lesson: 4,
+                lessonName: "الدرس 4: القضايا الأخلاقية في الذكاء الاصطناعي",
+                question: "عندما تضع مدينة كاميرات مراقبة ذكية في جميع شوارعها وتستخدم التعرف التلقائي على الوجوه لتتبع مسار حركة كل مواطن يومياً دون إذنه، فإن هذا الإجراء ينتهك مباشرة مبدأ:",
+                options: [
+                    "التصميم المتجاوب للمواقع.",
+                    "حماية الخصوصية والحياة الشخصية (Privacy).",
+                    "التصنيف الآلي للرسائل المزعجة.",
+                    "السرعة القصوى للمعالجات."
+                ],
+                correct: 1,
+                explanation: "التتبع المستمر للأفراد في الفضاءات العامة باستخدام القياسات الحيوية (Biometrics) والتعرف على الوجه دون موافقتهم يشكل مساساً صريحاً بحق الخصوصية والحياة الشخصية."
+            },
+            {
+                id: 46,
+                lesson: 4,
+                lessonName: "الدرس 4: القضايا الأخلاقية في الذكاء الاصطناعي",
+                question: "ماذا يقصد بـ 'المتغير البديل' (Proxy Variable) كأحد أسباب تسرب التحيز غير المباشر في تصميم أنظمة الذكاء الاصطناعي؟",
+                options: [
+                    "استبدال لوحة المفاتيح بالفأرة أثناء إدخال البيانات.",
+                    "متغير يبدو بريئاً ومحايداً ظاهرياً (مثل الرمز البريدي لمحل السكن) لكنه يرتبط تاريخياً وعرقياً بصفة محمية ومحظور التمييز بناءً عليها.",
+                    "متغير يتم حذفه من قاعدة البيانات لمنع بطء النظام.",
+                    "تغيير اسم المستخدم بكلمة سر مؤقتة."
+                ],
+                correct: 1,
+                explanation: "المتغير البديل هو سمة غير محمية ترتبط ارتباطاً وثيقاً بسمة محمية؛ فمثلاً الرمز البريدي (العنوان) قد يعكس العرق أو الديانة، واستخدامه في النظام يعيد إنتاج التحيز بصورة غير مباشرة."
+            },
+            {
+                id: 47,
+                lesson: 4,
+                lessonName: "الدرس 4: القضايا الأخلاقية في الذكاء الاصطناعي",
+                question: "المبدأ الأخلاقي الذي يوجب 'عدم التمييز ظلماً ضد أي شخص أو مجموعة وضمان المساواة وتكافؤ الفرص في مخرجات النظام' هو مبدأ:",
+                options: [
+                    "المساءلة (Accountability).",
+                    "العدالة والإنصاف (Fairness).",
+                    "الشفافية (Transparency).",
+                    "الحوسبة السحابية (Cloud Computing)."
+                ],
+                correct: 1,
+                explanation: "مبدأ العدالة (Fairness) ينص بوضوح على عدم التمييز ظلماً ضد أي فرد أو جماعة وضمان نزاهة المخرجات بصرف النظر عن الجنس، العرق، أو الخلفية الاجتماعية."
+            },
+            {
+                id: 48,
+                lesson: 4,
+                lessonName: "الدرس 4: القضايا الأخلاقية في الذكاء الاصطناعي",
+                question: "ما القضية القانونية والأخلاقية التي أثارها تدريب نماذج الذكاء الاصطناعي التوليدي (مثل أدوات توليد الفنون والنصوص) على مليارات الأعمال المتاحة عبر الإنترنت؟",
+                options: [
+                    "قضايا حقوق المؤلف والملكية الفكرية عند استخدام أعمال المبدعين دون إذنهم أو تعويضهم.",
+                    "قضايا انخفاض استهلاك الطاقة الكهربائية في الحواسيب.",
+                    "مطالبة المبرمجين بإلغاء شبكة الإنترنت بالكامل.",
+                    "منع الحواسيب من عرض الصور الملونة."
+                ],
+                correct: 0,
+                explanation: "تدريب النماذج على محتوى ومؤلفات وفنون محمية بحقوق الطبع والنشر (Copyright) دون ترخيص أثار نزاعات واسعة حول التعدي على حقوق الملكية الفكرية للمؤلفين والفنانين."
+            },
+            {
+                id: 49,
+                lesson: 4,
+                lessonName: "الدرس 4: القضايا الأخلاقية في الذكاء الاصطناعي",
+                question: "إذا تسببت سيارة ذاتية القيادة في حادث سير أدى لضرر مادي نتيجة سوء تقدير في خوارزمية الرؤية، ما الإجراء المؤسسي الصحيح لتطبيق 'المساءلة'؟",
+                options: [
+                    "إلغاء جميع كاميرات السيارات في العالم نهائياً.",
+                    "فتح تحقيق يحدد المسؤوليات بين الشركة المصنعة للنظام، مشغل المركبة، ومسؤولي الصيانة وفق الأطر القانونية وتحديد من يحاسب.",
+                    "اعتبار الحادث قضاءً وقدراً تقنياً لا يجوز لأحد التحقيق فيه أو مساءلته.",
+                    "معاقبة المركبة بتعطيل محركها لمدة أسبوعين."
+                ],
+                correct: 1,
+                explanation: "المساءلة تعني عدم التهرب من التبعات وتحديد الجهة الخاضعة للمحاسبة والتعويض من خلال فحص سجلات النظام وسياق القيادة وأدوار الأطراف المعنية."
+            },
+            {
+                id: 50,
+                lesson: 4,
+                lessonName: "الدرس 4: القضايا الأخلاقية في الذكاء الاصطناعي",
+                question: "المعادلة الذهبية التي لخصها المنهج لـ 'الاستخدام المسؤول للذكاء الاصطناعي' (Responsible AI) هي:",
+                options: [
+                    "ذكاء اصطناعي مسؤول = سرعة معالجة + شاشات ملونة + ذاكرة ضخمة + إنترنت سريع.",
+                    "ذكاء اصطناعي مسؤول = عدالة + شفافية + حماية الخصوصية + مساءلة.",
+                    "ذكاء اصطناعي مسؤول = تقليل الترانزستورات + زيادة الأنوية + حوسبة كمومية.",
+                    "ذكاء اصطناعي مسؤول = إلغاء الإشراف البشري تماماً والاعتماد الأعمى على الآلة."
+                ],
+                correct: 1,
+                explanation: "لخص الدرس الرابع المبادئ الأربعة الجوهرية لأخلاقيات الذكاء الاصطناعي في: العدالة (Fairness)، والشفافية (Transparency)، وحماية الخصوصية (Privacy)، والمساءلة (Accountability)."
+            }
+        ];
+
+        // System State
+        let currentFilter = 'all';
+        let filteredQuestions = [...questionsData];
+        let currentIndex = 0; // index inside filteredQuestions
+        let userAnswers = {}; // map of question.id -> selected option index (0..3)
+        let flaggedQuestions = new Set();
+        let isSubmitted = false;
+        let timerSeconds = 3000; // 50 mins
+        let timerInterval = null;
+        let instantFeedback = true;
+
+        // DOM Element Handles
+        const qNumberEl = document.getElementById('q-number');
+        const qTitleEl = document.getElementById('q-title');
+        const qLessonBadgeEl = document.getElementById('q-lesson-badge');
+        const optionsContainerEl = document.getElementById('options-container');
+        const explanationBoxEl = document.getElementById('explanation-box');
+        const explanationTextEl = document.getElementById('explanation-text');
+        const explanationHeaderEl = document.getElementById('explanation-header');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const clearAnsBtn = document.getElementById('clear-ans-btn');
+        const flagBtn = document.getElementById('flag-btn');
+        const flagIcon = document.getElementById('flag-icon');
+        const progressBarFill = document.getElementById('progress-bar-fill');
+        const progressText = document.getElementById('progress-text');
+        const progressPercent = document.getElementById('progress-percent');
+        const questionsGrid = document.getElementById('questions-grid');
+        const lessonFilter = document.getElementById('lesson-filter');
+        const instantToggle = document.getElementById('instant-feedback-toggle');
+        const timerToggle = document.getElementById('timer-toggle');
+        const timerText = document.getElementById('timer-text');
+        const topCorrectCount = document.getElementById('top-correct-count');
+        const topWrongCount = document.getElementById('top-wrong-count');
+        const topNetScore = document.getElementById('top-net-score');
+        const finishQuizBtn = document.getElementById('finish-quiz-btn');
+        const questionCard = document.getElementById('question-card');
+        const resultsView = document.getElementById('results-view');
+
+        // Modal Elements
+        const customModal = document.getElementById('custom-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalConfirm = document.getElementById('modal-confirm');
+        const modalCancel = document.getElementById('modal-cancel');
+        let modalConfirmCallback = null;
+
+        function showModal(title, body, onConfirm) {
+            modalTitle.textContent = title;
+            modalBody.textContent = body;
+            modalConfirmCallback = onConfirm;
+            customModal.classList.remove('hidden');
+        }
+
+        modalCancel.addEventListener('click', () => {
+            customModal.classList.add('hidden');
+            modalConfirmCallback = null;
+        });
+
+        modalConfirm.addEventListener('click', () => {
+            customModal.classList.add('hidden');
+            if (modalConfirmCallback) modalConfirmCallback();
+        });
+
+        // Initialize Theme Toggle
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // Initialize Exam
+        function initExam() {
+            startTimer();
+            applyFilter();
+        }
+
+        // Timer Logic
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (timerToggle.checked) return; // paused
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    finishExamAuto();
+                    return;
+                }
+                timerSeconds--;
+                const m = Math.floor(timerSeconds / 60);
+                const s = timerSeconds % 60;
+                timerText.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function finishExamAuto() {
+            showModal("انتهى وقت الاختبار!", "تم الوصول للحد الزمني، سيتم تقييم الإجابات وإظهار نتيجتك التفصيلية.", () => {
+                calculateResults();
+            });
+        }
+
+        // Filter Questions By Lesson
+        lessonFilter.addEventListener('change', (e) => {
+            currentFilter = e.target.value;
+            applyFilter();
+        });
+
+        function applyFilter() {
+            if (currentFilter === 'all') {
+                filteredQuestions = [...questionsData];
+            } else {
+                const lessonNum = parseInt(currentFilter);
+                filteredQuestions = questionsData.filter(q => q.lesson === lessonNum);
+            }
+            currentIndex = 0;
+            renderGrid();
+            renderQuestion();
+            updateScores();
+        }
+
+        // Render Grid
+        function renderGrid() {
+            questionsGrid.innerHTML = '';
+            document.getElementById('grid-status-count').textContent = `${Object.keys(userAnswers).length}/${filteredQuestions.length}`;
+
+            filteredQuestions.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `w-8 h-8 rounded-xl text-xs font-bold transition flex items-center justify-center border relative`;
+                btn.textContent = q.id;
+
+                const isCurrent = idx === currentIndex;
+                const isAnswered = userAnswers[q.id] !== undefined;
+                const isFlagged = flaggedQuestions.has(q.id);
+
+                // Base style
+                if (isCurrent) {
+                    btn.classList.add('ring-2', 'ring-brand-500', 'ring-offset-2', 'dark:ring-offset-slate-800');
+                }
+
+                if (isSubmitted || (instantFeedback && isAnswered)) {
+                    if (isAnswered) {
+                        if (userAnswers[q.id] === q.correct) {
+                            btn.classList.add('bg-emerald-500', 'text-white', 'border-emerald-600');
+                        } else {
+                            btn.classList.add('bg-rose-500', 'text-white', 'border-rose-600');
+                        }
+                    } else {
+                        btn.classList.add('bg-slate-100', 'dark:bg-slate-700', 'text-slate-600', 'dark:text-slate-300', 'border-slate-200');
+                    }
+                } else {
+                    if (isAnswered) {
+                        btn.classList.add('bg-brand-600', 'text-white', 'border-brand-700');
+                    } else {
+                        btn.classList.add('bg-slate-100', 'dark:bg-slate-700/60', 'text-slate-700', 'dark:text-slate-300', 'border-slate-200', 'dark:border-slate-600');
+                    }
+                }
+
+                // Flag indicator
+                if (isFlagged) {
+                    const dot = document.createElement('span');
+                    dot.className = 'absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full border border-white dark:border-slate-800';
+                    btn.appendChild(dot);
+                }
+
+                btn.addEventListener('click', () => {
+                    currentIndex = idx;
+                    renderQuestion();
+                    renderGrid();
+                });
+
+                questionsGrid.appendChild(btn);
+            });
+        }
+
+        // Render Current Question
+        function renderQuestion() {
+            if (filteredQuestions.length === 0) return;
+            const q = filteredQuestions[currentIndex];
+
+            qNumberEl.textContent = q.id;
+            qTitleEl.textContent = q.question;
+            qLessonBadgeEl.textContent = q.lessonName;
+
+            // Flag State
+            if (flaggedQuestions.has(q.id)) {
+                flagIcon.classList.remove('fa-regular');
+                flagIcon.classList.add('fa-solid', 'text-amber-500');
+            } else {
+                flagIcon.classList.remove('fa-solid', 'text-amber-500');
+                flagIcon.classList.add('fa-regular');
+            }
+
+            // Options
+            optionsContainerEl.innerHTML = '';
+            const selectedOpt = userAnswers[q.id];
+            const showFeedback = isSubmitted || (instantFeedback && selectedOpt !== undefined);
+
+            const letters = ['أ', 'ب', 'ج', 'د'];
+
+            q.options.forEach((optText, optIdx) => {
+                const optBtn = document.createElement('button');
+                optBtn.type = 'button';
+                optBtn.className = `w-full text-right p-3.5 sm:p-4 rounded-xl border text-xs sm:text-sm font-semibold transition flex items-start gap-3 relative`;
+
+                const letterSpan = document.createElement('span');
+                letterSpan.className = `w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center shrink-0 border transition`;
+                letterSpan.textContent = letters[optIdx];
+
+                const textSpan = document.createElement('span');
+                textSpan.className = 'flex-1 pt-0.5 leading-relaxed';
+                textSpan.textContent = optText;
+
+                optBtn.appendChild(letterSpan);
+                optBtn.appendChild(textSpan);
+
+                // Option styling rules
+                if (showFeedback) {
+                    // Lock options in review or instant answered mode
+                    if (optIdx === q.correct) {
+                        optBtn.className += ' bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 text-emerald-800 dark:text-emerald-200';
+                        letterSpan.className += ' bg-emerald-600 text-white border-emerald-600';
+                    } else if (selectedOpt === optIdx && optIdx !== q.correct) {
+                        optBtn.className += ' bg-rose-50 dark:bg-rose-950/40 border-rose-500 text-rose-800 dark:text-rose-200';
+                        letterSpan.className += ' bg-rose-600 text-white border-rose-600';
+                    } else {
+                        optBtn.className += ' bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 opacity-60 text-slate-500 dark:text-slate-400';
+                        letterSpan.className += ' bg-slate-200 dark:bg-slate-700 text-slate-500 border-slate-300';
+                    }
+                } else {
+                    // Normal Interactive mode
+                    if (selectedOpt === optIdx) {
+                        optBtn.className += ' bg-brand-50 dark:bg-brand-950/50 border-brand-500 text-brand-900 dark:text-brand-200 shadow-sm';
+                        letterSpan.className += ' bg-brand-600 text-white border-brand-600';
+                    } else {
+                        optBtn.className += ' bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-brand-300';
+                        letterSpan.className += ' bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600';
+                    }
+
+                    optBtn.addEventListener('click', () => {
+                        selectOption(q.id, optIdx);
+                    });
+                }
+
+                optionsContainerEl.appendChild(optBtn);
+            });
+
+            // Explanation box handling
+            if (showFeedback) {
+                explanationBoxEl.classList.remove('hidden');
+                explanationTextEl.textContent = q.explanation;
+                if (selectedOpt === q.correct) {
+                    explanationHeaderEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> <span class="text-emerald-700 dark:text-emerald-400">إجابة نموذجية صحيحة (+1 نقطة):</span>`;
+                } else if (selectedOpt !== undefined) {
+                    explanationHeaderEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600"></i> <span class="text-rose-700 dark:text-rose-400">إجابة غير صحيحة (-1 نقطة جزائية):</span>`;
+                } else {
+                    explanationHeaderEl.innerHTML = `<i class="fa-solid fa-circle-info text-amber-500"></i> <span class="text-amber-700 dark:text-amber-400">سؤال بدون إجابة (0 نقطة):</span>`;
+                }
+            } else {
+                explanationBoxEl.classList.add('hidden');
+            }
+
+            // Update Progress Header
+            const total = filteredQuestions.length;
+            const currentNumber = currentIndex + 1;
+            const pct = Math.round((currentNumber / total) * 100);
+            progressText.textContent = `سؤال ${currentNumber} من ${total}`;
+            progressPercent.textContent = `${pct}%`;
+            progressBarFill.style.width = `${pct}%`;
+
+            // Prev / Next Buttons
+            prevBtn.disabled = currentIndex === 0;
+            if (currentIndex === total - 1) {
+                nextBtn.innerHTML = isSubmitted ? `النتيجة <i class="fa-solid fa-chart-pie"></i>` : `مراجعة الكل <i class="fa-solid fa-flag-checkered"></i>`;
+            } else {
+                nextBtn.innerHTML = `التالي <i class="fa-solid fa-chevron-left"></i>`;
+            }
+        }
+
+        // Option Selection
+        function selectOption(qId, optIdx) {
+            userAnswers[qId] = optIdx;
+            updateScores();
+            renderQuestion();
+            renderGrid();
+        }
+
+        // Clear Answer
+        clearAnsBtn.addEventListener('click', () => {
+            if (isSubmitted) return;
+            const q = filteredQuestions[currentIndex];
+            if (userAnswers[q.id] !== undefined) {
+                delete userAnswers[q.id];
+                updateScores();
+                renderQuestion();
+                renderGrid();
+            }
+        });
+
+        // Toggle Flag
+        flagBtn.addEventListener('click', () => {
+            const q = filteredQuestions[currentIndex];
+            if (flaggedQuestions.has(q.id)) {
+                flaggedQuestions.delete(q.id);
+            } else {
+                flaggedQuestions.add(q.id);
+            }
+            renderQuestion();
+            renderGrid();
+        });
+
+        // Navigation Next / Prev
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderQuestion();
+                renderGrid();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex < filteredQuestions.length - 1) {
+                currentIndex++;
+                renderQuestion();
+                renderGrid();
+            } else {
+                if (!isSubmitted) {
+                    showModal("تسليم الاختبار", "هل ترغب في إنهاء الاختبار الآن وحساب النتيجة النهائية؟", () => {
+                        calculateResults();
+                    });
+                } else {
+                    showResultsView();
+                }
+            }
+        });
+
+        // Instant Feedback Toggle
+        instantToggle.addEventListener('change', (e) => {
+            instantFeedback = e.target.checked;
+            renderQuestion();
+            renderGrid();
+        });
+
+        // Calculate and Update Running Scores (+1 / -1 System)
+        function updateScores() {
+            let correct = 0;
+            let wrong = 0;
+
+            questionsData.forEach(q => {
+                const ans = userAnswers[q.id];
+                if (ans !== undefined) {
+                    if (ans === q.correct) {
+                        correct++;
+                    } else {
+                        wrong++;
+                    }
+                }
+            });
+
+            const netScore = (correct * 1) - (wrong * 1);
+            topCorrectCount.textContent = correct;
+            topWrongCount.textContent = wrong;
+            topNetScore.textContent = netScore;
+
+            return { correct, wrong, netScore, total: questionsData.length };
+        }
+
+        // Finish Exam Button
+        finishQuizBtn.addEventListener('click', () => {
+            const answeredCount = Object.keys(userAnswers).length;
+            const total = filteredQuestions.length;
+            const msg = answeredCount < total
+                ? `لقد أجبت عن ${answeredCount} من أصل ${total} سؤالاً. الأسئلة المتروكة ستحصل على (0) ولن يتم خصم درجات عليها. هل تؤكد الإنهاء؟`
+                : "هل تريد تأكيد إنهاء الاختبار والاطلاع على التقرير التفصيلي ومؤشرات الأداء؟";
+
+            showModal("تأكيد إنهاء الاختبار", msg, () => {
+                calculateResults();
+            });
+        });
+
+        // Calculate Final Results View
+        function calculateResults() {
+            isSubmitted = true;
+            clearInterval(timerInterval);
+
+            const scores = updateScores();
+            const unanswered = scores.total - (scores.correct + scores.wrong);
+
+            // Populate Scoreboard
+            document.getElementById('final-net-score').textContent = scores.netScore;
+            document.getElementById('final-correct').textContent = scores.correct;
+            document.getElementById('final-wrong').textContent = scores.wrong;
+            document.getElementById('final-unanswered').textContent = unanswered;
+
+            // Percentage based on max possible score (50)
+            const rawPct = (scores.netScore / scores.total) * 100;
+            const finalPct = Math.max(0, Math.round(rawPct));
+            document.getElementById('final-percentage').textContent = `${finalPct}%`;
+
+            // Evaluation remarks
+            const verdictEl = document.getElementById('final-verdict');
+            if (finalPct >= 90) {
+                verdictEl.textContent = "ممتاز جداً! إتقان تام واستيعاب عميق لدقائق الفصل الأول.";
+                verdictEl.className = "text-sm font-extrabold mt-1 text-emerald-600";
+            } else if (finalPct >= 75) {
+                verdictEl.textContent = "مستوى جيد جداً! لديك فهم صلب مع بعض النقاط الدقيقة التي تحتاج إلى مراجعة.";
+                verdictEl.className = "text-sm font-extrabold mt-1 text-teal-600";
+            } else if (finalPct >= 50) {
+                verdictEl.textContent = "مستوى متوسط. تسببت الإجابات الخاطئة في خصم درجات هامة؛ راجع التفسيرات النموذجية.";
+                verdictEl.className = "text-sm font-extrabold mt-1 text-amber-600";
+            } else {
+                verdictEl.textContent = "تحتاج إلى إعادة دراسة الفصل بتركيز والانتباه للفروق المفاهيمية بين الدروس.";
+                verdictEl.className = "text-sm font-extrabold mt-1 text-rose-600";
+            }
+
+            // Lessons breakdown
+            renderLessonsBreakdown();
+            showResultsView();
+            renderGrid();
+        }
+
+        function renderLessonsBreakdown() {
+            const listEl = document.getElementById('lessons-breakdown-list');
+            listEl.innerHTML = '';
+
+            const lessonMap = {
+                1: { title: "الدرس 1: تطور تكنولوجيا المعلومات والتحول الاجتماعي", total: 0, correct: 0, wrong: 0 },
+                2: { title: "الدرس 2: كيف يعمل الذكاء الاصطناعي (ML, DL, GenAI)", total: 0, correct: 0, wrong: 0 },
+                3: { title: "الدرس 3: الذكاء الاصطناعي في الحياة اليومية والصناعة", total: 0, correct: 0, wrong: 0 },
+                4: { title: "الدرس 4: القضايا الأخلاقية والتحيز الخوارزمي وXAI", total: 0, correct: 0, wrong: 0 }
+            };
+
+            questionsData.forEach(q => {
+                lessonMap[q.lesson].total++;
+                const ans = userAnswers[q.id];
+                if (ans !== undefined) {
+                    if (ans === q.correct) lessonMap[q.lesson].correct++;
+                    else lessonMap[q.lesson].wrong++;
+                }
+            });
+
+            for (let l in lessonMap) {
+                const item = lessonMap[l];
+                const net = item.correct - item.wrong;
+                const row = document.createElement('div');
+                row.className = "p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-200 dark:border-slate-600 flex flex-col sm:flex-row justify-between sm:items-center gap-2";
+                row.innerHTML = `
+                    <div class="font-bold text-slate-800 dark:text-slate-100">${item.title}</div>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <span class="text-emerald-600 font-semibold">+${item.correct} صح</span>
+                        <span class="text-rose-500 font-semibold">-${item.wrong} خطأ</span>
+                        <span class="px-2.5 py-0.5 rounded-lg bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-slate-200 font-bold">الصافي: ${net}/${item.total}</span>
+                    </div>
+                `;
+                listEl.appendChild(row);
+            }
+        }
+
+        function showResultsView() {
+            questionCard.classList.add('hidden');
+            resultsView.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Review Actions in Results
+        document.getElementById('review-all-btn').addEventListener('click', () => {
+            resultsView.classList.add('hidden');
+            questionCard.classList.remove('hidden');
+            currentIndex = 0;
+            renderQuestion();
+            renderGrid();
+        });
+
+        document.getElementById('review-mistakes-btn').addEventListener('click', () => {
+            const mistakeQuestions = questionsData.filter(q => userAnswers[q.id] !== undefined && userAnswers[q.id] !== q.correct);
+            if (mistakeQuestions.length === 0) {
+                showModal("تهانينا!", "ليس لديك أي إجابات خاطئة لمراجعتها!", () => {});
+                return;
+            }
+            filteredQuestions = mistakeQuestions;
+            currentIndex = 0;
+            resultsView.classList.add('hidden');
+            questionCard.classList.remove('hidden');
+            renderQuestion();
+            renderGrid();
+        });
+
+        document.getElementById('restart-quiz-btn').addEventListener('click', () => {
+            showModal("إعادة الاختبار", "هل ترغب في مسح كافة إجاباتك والبدء من جديد باختبار الفصل الأول؟", () => {
+                userAnswers = {};
+                flaggedQuestions.clear();
+                isSubmitted = false;
+                timerSeconds = 3000;
+                applyFilter();
+                resultsView.classList.add('hidden');
+                questionCard.classList.remove('hidden');
+                startTimer();
+            });
+        });
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initExam();
+        });
+    </script>
+</body>
+</html>
